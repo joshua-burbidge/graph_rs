@@ -5,12 +5,12 @@ use femtovg::{Canvas, Color, Renderer};
 use glutin::surface::Surface;
 use glutin::{context::PossiblyCurrentContext, display::Display};
 use glutin_winit::DisplayBuilder;
-use raw_window_handle::HasRawWindowHandle;
 use winit::dpi::PhysicalPosition;
 use winit::event::Event; // this is the Event::WindowEvent
 use winit::event::WindowEvent; // this is the WindowEvent::CloseRequested
-use winit::event_loop::{ControlFlow, EventLoop};
-use winit::window::WindowBuilder;
+use winit::event_loop::EventLoop;
+use winit::raw_window_handle::HasRawWindowHandle;
+use winit::window::WindowAttributes;
 use winit::{dpi::PhysicalSize, window::Window};
 
 use glutin::{
@@ -22,7 +22,7 @@ use glutin::{
 };
 
 fn main() {
-    let event_loop = EventLoop::new();
+    let event_loop = EventLoop::new().expect("failed to create event loop");
     let (context, gl_display, window, surface) = create_window(&event_loop);
 
     let renderer =
@@ -36,20 +36,22 @@ fn main() {
 
     render(&context, &surface, &window, &mut canvas, mouse_pos);
 
-    event_loop.run(move |event, _target, control_flow| match event {
-        Event::WindowEvent { event, window_id } => match event {
-            WindowEvent::CloseRequested => control_flow.set_exit(),
-            WindowEvent::CursorMoved { position, .. } => {
-                mouse_pos = position;
-                window.request_redraw();
-            }
-            _ => println!("{:?} {:?}", window_id, event),
-        },
-        Event::RedrawRequested(_) => {
-            render(&context, &surface, &window, &mut canvas, mouse_pos);
-        }
-        _ => {}
-    })
+    event_loop
+        .run(move |event, event_loop| match event {
+            Event::WindowEvent { event, window_id } => match event {
+                WindowEvent::CloseRequested => event_loop.exit(),
+                WindowEvent::CursorMoved { position, .. } => {
+                    mouse_pos = position;
+                    window.request_redraw();
+                }
+                WindowEvent::RedrawRequested => {
+                    render(&context, &surface, &window, &mut canvas, mouse_pos);
+                }
+                _ => println!("{:?} {:?}", window_id, event),
+            },
+            _ => {}
+        })
+        .expect("run failed");
 }
 
 fn create_window(
@@ -60,14 +62,12 @@ fn create_window(
     Window,
     Surface<WindowSurface>,
 ) {
-    let window_builder = WindowBuilder::new()
-        .with_inner_size(PhysicalSize::new(1000., 600.))
-        .with_title("Femtovg");
-
     let template = ConfigTemplateBuilder::new().with_alpha_size(8);
 
-    // this line works after downgrading versions to match the example
-    let display_builder = DisplayBuilder::new().with_window_builder(Some(window_builder));
+    let window_attr = WindowAttributes::default()
+        .with_inner_size(PhysicalSize::new(1000., 600.))
+        .with_title("Femotovg");
+    let display_builder = DisplayBuilder::new().with_window_attributes(Some(window_attr));
 
     let (window, gl_config) = display_builder
         .build(event_loop, template, |mut configs| configs.next().unwrap())
@@ -77,8 +77,11 @@ fn create_window(
 
     let gl_display = gl_config.display();
 
-    let context_attributes =
-        ContextAttributesBuilder::new().build(Some(window.raw_window_handle()));
+    let context_attributes = ContextAttributesBuilder::new().build(Some(
+        window
+            .raw_window_handle()
+            .expect("raw window handle failed"),
+    ));
 
     let mut not_current_gl_context = Some(unsafe {
         gl_display
@@ -87,7 +90,9 @@ fn create_window(
     });
 
     let attrs = SurfaceAttributesBuilder::<WindowSurface>::new().build(
-        window.raw_window_handle(),
+        window
+            .raw_window_handle()
+            .expect("raw window handle failed"),
         NonZeroU32::new(1000).unwrap(),
         NonZeroU32::new(600).unwrap(),
     );
@@ -122,6 +127,7 @@ fn render<T: Renderer>(
     let size = window.inner_size();
     canvas.set_size(size.width, size.height, window.scale_factor() as f32);
 
+    // clear canvas by filling with black
     canvas.clear_rect(0, 0, size.width, size.height, Color::black());
 
     // Make smol red rectangle
