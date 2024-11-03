@@ -5,11 +5,12 @@ use femtovg::{Canvas, Color, Renderer};
 use glutin::surface::Surface;
 use glutin::{context::PossiblyCurrentContext, display::Display};
 use glutin_winit::DisplayBuilder;
+#[allow(deprecated)]
+use raw_window_handle::HasRawWindowHandle;
 use winit::dpi::PhysicalPosition;
 use winit::event::Event; // this is the Event::WindowEvent
 use winit::event::WindowEvent; // this is the WindowEvent::CloseRequested
 use winit::event_loop::EventLoop;
-use winit::raw_window_handle::HasRawWindowHandle;
 use winit::window::WindowAttributes;
 use winit::{dpi::PhysicalSize, window::Window};
 
@@ -77,6 +78,7 @@ fn create_window(
 
     let gl_display = gl_config.display();
 
+    #[allow(deprecated)]
     let context_attributes = ContextAttributesBuilder::new().build(Some(
         window
             .raw_window_handle()
@@ -89,6 +91,7 @@ fn create_window(
             .unwrap()
     });
 
+    #[allow(deprecated)]
     let attrs = SurfaceAttributesBuilder::<WindowSurface>::new().build(
         window
             .raw_window_handle()
