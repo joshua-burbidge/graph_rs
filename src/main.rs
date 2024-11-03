@@ -6,7 +6,8 @@ use glutin::surface::Surface;
 use glutin::{context::PossiblyCurrentContext, display::Display};
 use glutin_winit::DisplayBuilder;
 use raw_window_handle::HasRawWindowHandle;
-use winit::event::Event;
+use winit::event::Event; // this is the Event::WindowEvent
+use winit::event::WindowEvent; // this is the WindowEvent::CloseRequested
 use winit::event_loop::EventLoop;
 use winit::window::WindowBuilder;
 use winit::{dpi::PhysicalSize, window::Window};
@@ -32,9 +33,15 @@ fn main() {
 
     render(&context, &surface, &window, &mut canvas);
 
-    event_loop.run(|event, _target, control_flow| match event {
+    event_loop.run(|event, _target, _control_flow| match event {
+        Event::WindowEvent {
+            window_id: _window_id,
+            event: WindowEvent::CloseRequested,
+        } => {
+            println!("close requested")
+        }
         Event::WindowEvent { window_id, event } => {
-            println!("{:?}", event)
+            println!("{:?} {:?}", window_id, event)
         }
         _ => {}
     })
