@@ -2,8 +2,8 @@ use std::num::NonZeroU32;
 
 use femtovg::renderer::OpenGl;
 use femtovg::{Canvas, Color, Renderer};
+use glutin::context::PossiblyCurrentContext;
 use glutin::surface::Surface;
-use glutin::{context::PossiblyCurrentContext, display::Display};
 use glutin_winit::DisplayBuilder;
 #[allow(deprecated)]
 use raw_window_handle::HasRawWindowHandle;
@@ -42,13 +42,8 @@ struct MyApplicationHandler {
 
 impl ApplicationHandler for MyApplicationHandler {
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
-        let (context, gl_display, window, surface) = create_window(&event_loop);
+        let (context, mut canvas, window, surface) = init_canvas(&event_loop);
 
-        let renderer =
-            unsafe { OpenGl::new_from_function_cstr(|s| gl_display.get_proc_address(s).cast()) }
-                .expect("Cannot create renderer");
-
-        let mut canvas = Canvas::new(renderer).expect("Cannot create canvas");
         canvas.set_size(1000, 600, window.scale_factor() as f32);
 
         self.window = Some(window);
@@ -91,11 +86,11 @@ impl ApplicationHandler for MyApplicationHandler {
     }
 }
 
-fn create_window(
+fn init_canvas(
     event_loop: &ActiveEventLoop,
 ) -> (
     PossiblyCurrentContext,
-    Display,
+    Canvas<OpenGl>,
     Window,
     Surface<WindowSurface>,
 ) {
@@ -143,16 +138,19 @@ fn create_window(
             .unwrap()
     };
 
-    (
-        not_current_gl_context
-            .take()
-            .unwrap()
-            .make_current(&surface)
-            .unwrap(),
-        gl_display,
-        window,
-        surface,
-    )
+    let current_context = not_current_gl_context
+        .take()
+        .unwrap()
+        .make_current(&surface)
+        .unwrap();
+
+    let renderer =
+        unsafe { OpenGl::new_from_function_cstr(|s| gl_display.get_proc_address(s).cast()) }
+            .expect("Cannot create renderer");
+
+    let canvas = Canvas::new(renderer).expect("Cannot create canvas");
+
+    (current_context, canvas, window, surface)
 }
 
 fn render<T: Renderer>(
