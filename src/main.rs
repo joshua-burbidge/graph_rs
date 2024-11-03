@@ -6,9 +6,10 @@ use glutin::surface::Surface;
 use glutin::{context::PossiblyCurrentContext, display::Display};
 use glutin_winit::DisplayBuilder;
 use raw_window_handle::HasRawWindowHandle;
+use winit::dpi::PhysicalPosition;
 use winit::event::Event; // this is the Event::WindowEvent
 use winit::event::WindowEvent; // this is the WindowEvent::CloseRequested
-use winit::event_loop::EventLoop;
+use winit::event_loop::{ControlFlow, EventLoop};
 use winit::window::WindowBuilder;
 use winit::{dpi::PhysicalSize, window::Window};
 
@@ -31,17 +32,21 @@ fn main() {
     let mut canvas = Canvas::new(renderer).expect("Cannot create canvas");
     canvas.set_size(1000, 600, window.scale_factor() as f32);
 
-    render(&context, &surface, &window, &mut canvas);
+    let mut mouse_pos = PhysicalPosition::new(0., 0.);
 
-    event_loop.run(|event, _target, _control_flow| match event {
-        Event::WindowEvent {
-            window_id: _window_id,
-            event: WindowEvent::CloseRequested,
-        } => {
-            println!("close requested")
-        }
-        Event::WindowEvent { window_id, event } => {
-            println!("{:?} {:?}", window_id, event)
+    render(&context, &surface, &window, &mut canvas, mouse_pos);
+
+    event_loop.run(move |event, _target, control_flow| match event {
+        Event::WindowEvent { event, window_id } => match event {
+            WindowEvent::CloseRequested => control_flow.set_exit(),
+            WindowEvent::CursorMoved { position, .. } => {
+                mouse_pos = position;
+                window.request_redraw();
+            }
+            _ => println!("{:?} {:?}", window_id, event),
+        },
+        Event::RedrawRequested(_) => {
+            render(&context, &surface, &window, &mut canvas, mouse_pos);
         }
         _ => {}
     })
@@ -111,13 +116,22 @@ fn render<T: Renderer>(
     surface: &Surface<WindowSurface>,
     window: &Window,
     canvas: &mut Canvas<T>,
+    square_position: PhysicalPosition<f64>,
 ) {
     // Make sure the canvas has the right size:
     let size = window.inner_size();
     canvas.set_size(size.width, size.height, window.scale_factor() as f32);
 
+    canvas.clear_rect(0, 0, size.width, size.height, Color::black());
+
     // Make smol red rectangle
-    canvas.clear_rect(30, 30, 30, 30, Color::rgbf(1., 0., 0.));
+    canvas.clear_rect(
+        square_position.x as u32,
+        square_position.y as u32,
+        30,
+        30,
+        Color::rgbf(1., 0., 0.),
+    );
 
     // Tell renderer to execute all drawing commands
     canvas.flush();
