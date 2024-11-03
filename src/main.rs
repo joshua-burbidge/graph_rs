@@ -1,7 +1,7 @@
-use handler::handler::MyApplicationHandler;
+use application::handler::MyApplicationHandler;
 use winit::event_loop::EventLoop;
 
-pub mod handler;
+pub mod application;
 
 fn main() {
     let event_loop = EventLoop::new().expect("failed to create event loop");

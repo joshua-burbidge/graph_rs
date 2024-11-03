@@ -10,7 +10,7 @@ use winit::event_loop::ActiveEventLoop;
 use winit::window::Window;
 use winit::window::WindowId;
 
-use crate::handler::femtovg_init;
+use crate::application::femtovg_init;
 
 #[derive(Default)]
 pub struct MyApplicationHandler {
