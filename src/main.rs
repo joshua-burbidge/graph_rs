@@ -9,7 +9,7 @@ use glutin_winit::DisplayBuilder;
 use raw_window_handle::HasRawWindowHandle;
 use winit::application::ApplicationHandler;
 use winit::dpi::PhysicalPosition;
-use winit::event::WindowEvent; // this is the WindowEvent::CloseRequested
+use winit::event::WindowEvent;
 use winit::event_loop::{ActiveEventLoop, EventLoop};
 use winit::window::{WindowAttributes, WindowId};
 use winit::{dpi::PhysicalSize, window::Window};
@@ -24,39 +24,38 @@ use glutin::{
 
 fn main() {
     let event_loop = EventLoop::new().expect("failed to create event loop");
-    let (context, gl_display, window, surface) = create_window(&event_loop);
 
-    let renderer =
-        unsafe { OpenGl::new_from_function_cstr(|s| gl_display.get_proc_address(s).cast()) }
-            .expect("Cannot create renderer");
+    let mut app = MyApplicationHandler::default();
 
-    let mut canvas = Canvas::new(renderer).expect("Cannot create canvas");
-    canvas.set_size(1000, 600, window.scale_factor() as f32);
-
-    let default_mouse_pos = PhysicalPosition::new(0., 0.);
-
-    let mut app = MyApplicationHandler {
-        close_requested: false,
-        mouse_position: default_mouse_pos,
-        window,
-        context,
-        surface,
-        canvas,
-    };
     event_loop.run_app(&mut app).expect("run failed");
 }
 
+#[derive(Default)]
 struct MyApplicationHandler {
     close_requested: bool,
     mouse_position: PhysicalPosition<f64>,
-    window: Window,
-    context: PossiblyCurrentContext,
-    surface: Surface<WindowSurface>,
-    canvas: Canvas<OpenGl>,
+    window: Option<Window>,
+    context: Option<PossiblyCurrentContext>,
+    surface: Option<Surface<WindowSurface>>,
+    canvas: Option<Canvas<OpenGl>>,
 }
 
 impl ApplicationHandler for MyApplicationHandler {
-    fn resumed(&mut self, _event_loop: &ActiveEventLoop) {}
+    fn resumed(&mut self, event_loop: &ActiveEventLoop) {
+        let (context, gl_display, window, surface) = create_window(&event_loop);
+
+        let renderer =
+            unsafe { OpenGl::new_from_function_cstr(|s| gl_display.get_proc_address(s).cast()) }
+                .expect("Cannot create renderer");
+
+        let mut canvas = Canvas::new(renderer).expect("Cannot create canvas");
+        canvas.set_size(1000, 600, window.scale_factor() as f32);
+
+        self.window = Some(window);
+        self.context = Some(context);
+        self.surface = Some(surface);
+        self.canvas = Some(canvas);
+    }
 
     fn window_event(
         &mut self,
@@ -70,14 +69,14 @@ impl ApplicationHandler for MyApplicationHandler {
             }
             WindowEvent::CursorMoved { position, .. } => {
                 self.mouse_position = position;
-                self.window.request_redraw();
+                self.window.as_ref().unwrap().request_redraw();
             }
             WindowEvent::RedrawRequested => {
                 render(
-                    &self.context,
-                    &self.surface,
-                    &self.window,
-                    &mut self.canvas,
+                    &self.context.as_ref().unwrap(),
+                    &self.surface.as_ref().unwrap(),
+                    &self.window.as_ref().unwrap(),
+                    &mut self.canvas.as_mut().unwrap(),
                     self.mouse_position,
                 );
             }
@@ -93,7 +92,7 @@ impl ApplicationHandler for MyApplicationHandler {
 }
 
 fn create_window(
-    event_loop: &EventLoop<()>,
+    event_loop: &ActiveEventLoop,
 ) -> (
     PossiblyCurrentContext,
     Display,
