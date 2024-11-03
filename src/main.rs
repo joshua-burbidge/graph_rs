@@ -7,11 +7,12 @@ use glutin::{context::PossiblyCurrentContext, display::Display};
 use glutin_winit::DisplayBuilder;
 #[allow(deprecated)]
 use raw_window_handle::HasRawWindowHandle;
+use winit::application::ApplicationHandler;
 use winit::dpi::PhysicalPosition;
 use winit::event::Event; // this is the Event::WindowEvent
 use winit::event::WindowEvent; // this is the WindowEvent::CloseRequested
-use winit::event_loop::EventLoop;
-use winit::window::WindowAttributes;
+use winit::event_loop::{ActiveEventLoop, EventLoop};
+use winit::window::{WindowAttributes, WindowId};
 use winit::{dpi::PhysicalSize, window::Window};
 
 use glutin::{
@@ -37,22 +38,44 @@ fn main() {
 
     render(&context, &surface, &window, &mut canvas, mouse_pos);
 
-    event_loop
-        .run(move |event, event_loop| match event {
-            Event::WindowEvent { event, window_id } => match event {
-                WindowEvent::CloseRequested => event_loop.exit(),
-                WindowEvent::CursorMoved { position, .. } => {
-                    mouse_pos = position;
-                    window.request_redraw();
-                }
-                WindowEvent::RedrawRequested => {
-                    render(&context, &surface, &window, &mut canvas, mouse_pos);
-                }
-                _ => println!("{:?} {:?}", window_id, event),
-            },
-            _ => {}
-        })
-        .expect("run failed");
+    let mut app = MyApplicationHandler::default();
+    event_loop.run_app(&mut app).expect("run failed");
+}
+
+#[derive(Default)]
+struct MyApplicationHandler {
+    close_requested: bool,
+}
+
+impl ApplicationHandler for MyApplicationHandler {
+    fn resumed(&mut self, event_loop: &ActiveEventLoop) {}
+
+    fn window_event(
+        &mut self,
+        event_loop: &ActiveEventLoop,
+        window_id: WindowId,
+        event: WindowEvent,
+    ) {
+        match event {
+            WindowEvent::CloseRequested => {
+                self.close_requested = true;
+            }
+            // WindowEvent::CursorMoved { position, .. } => {
+            //     mouse_pos = position;
+            //     window.request_redraw();
+            // }
+            // WindowEvent::RedrawRequested => {
+            //     render(&context, &surface, &window, &mut canvas, mouse_pos);
+            // }
+            _ => println!("{:?} {:?}", window_id, event),
+        }
+    }
+
+    fn about_to_wait(&mut self, event_loop: &ActiveEventLoop) {
+        if self.close_requested {
+            event_loop.exit();
+        }
+    }
 }
 
 fn create_window(
