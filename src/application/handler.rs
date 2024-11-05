@@ -1,5 +1,5 @@
 use femtovg::renderer::OpenGl;
-use femtovg::{Canvas, Color, Renderer};
+use femtovg::{Canvas, Color, Paint, Path, Renderer};
 use glutin::context::PossiblyCurrentContext;
 use glutin::surface::Surface;
 use glutin::{prelude::*, surface::WindowSurface};
@@ -80,6 +80,40 @@ impl ApplicationHandler for MyApplicationHandler {
     }
 }
 
+fn render_canvas<T: Renderer>(window: &Window, canvas: &mut Canvas<T>) {
+    // Make sure the canvas has the right size:
+    let size = window.inner_size();
+    canvas.set_size(size.width, size.height, window.scale_factor() as f32);
+
+    // clear canvas by filling with black
+    canvas.clear_rect(0, 0, size.width, size.height, Color::black());
+
+    let green_paint = Paint::color(Color::rgb(0, 255, 0));
+
+    let mut path = Path::new();
+
+    path.move_to(100., 100.);
+    path.line_to(500., 500.);
+    path.line_to(1000., 500.);
+    path.close(); // close: line from current point back to start
+
+    let mut x_axis = Path::new();
+    let mut y_axis = Path::new();
+    let midpoint_vert = (size.height / 2) as f32;
+    let midpoint_horiz = (size.width / 2) as f32;
+
+    x_axis.move_to(0., midpoint_vert);
+    x_axis.line_to(size.width as f32, midpoint_vert);
+
+    y_axis.move_to(midpoint_horiz, 0.);
+    y_axis.line_to(midpoint_horiz, size.height as f32);
+
+    canvas.stroke_path(&x_axis, &green_paint);
+    canvas.stroke_path(&y_axis, &green_paint);
+    canvas.stroke_path(&path, &green_paint);
+    // canvas.fill_path(&path, &green_paint);
+}
+
 fn render<T: Renderer>(
     context: &PossiblyCurrentContext,
     surface: &Surface<WindowSurface>,
@@ -87,12 +121,7 @@ fn render<T: Renderer>(
     canvas: &mut Canvas<T>,
     square_position: PhysicalPosition<f64>,
 ) {
-    // Make sure the canvas has the right size:
-    let size = window.inner_size();
-    canvas.set_size(size.width, size.height, window.scale_factor() as f32);
-
-    // clear canvas by filling with black
-    canvas.clear_rect(0, 0, size.width, size.height, Color::black());
+    render_canvas(window, canvas);
 
     // Make smol red rectangle
     canvas.clear_rect(
