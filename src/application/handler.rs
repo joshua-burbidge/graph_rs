@@ -82,6 +82,7 @@ impl ApplicationHandler for MyApplicationHandler {
 
 struct Graph {
     size: PhysicalSize<u32>,
+    scale: i32,
 }
 
 impl Graph {
@@ -99,7 +100,20 @@ impl Graph {
         y_axis.move_to(midpoint_horiz, 0.);
         y_axis.line_to(midpoint_horiz, size.height as f32);
 
+        let tick_size = 20;
+        let mut x_ticks = Path::new();
+        x_ticks.move_to(
+            midpoint_horiz + self.scale as f32,
+            midpoint_vert - (tick_size / 2) as f32,
+        );
+        x_ticks.line_to(
+            midpoint_horiz + self.scale as f32,
+            midpoint_vert + (tick_size / 2) as f32,
+        );
+
         let green_paint = Paint::color(Color::rgb(0, 255, 0));
+
+        canvas.stroke_path(&x_ticks, &green_paint);
 
         canvas.stroke_path(&x_axis, &green_paint);
         canvas.stroke_path(&y_axis, &green_paint);
@@ -121,7 +135,7 @@ fn render_canvas<T: Renderer>(window: &Window, canvas: &mut Canvas<T>) {
     // clear canvas by filling with black
     canvas.clear_rect(0, 0, size.width, size.height, Color::black());
 
-    let graph1 = Graph { size };
+    let graph1 = Graph { size, scale: 10 };
     graph1.init_graph(canvas);
 }
 
