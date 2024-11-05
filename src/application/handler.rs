@@ -7,6 +7,7 @@ use winit::application::ApplicationHandler;
 use winit::dpi::PhysicalPosition;
 use winit::event::WindowEvent;
 use winit::event_loop::ActiveEventLoop;
+use winit::keyboard::{Key, NamedKey};
 use winit::window::Window;
 use winit::window::WindowId;
 
@@ -37,7 +38,7 @@ impl ApplicationHandler for MyApplicationHandler {
     fn window_event(
         &mut self,
         _event_loop: &ActiveEventLoop,
-        window_id: WindowId,
+        _window_id: WindowId,
         event: WindowEvent,
     ) {
         match event {
@@ -48,6 +49,16 @@ impl ApplicationHandler for MyApplicationHandler {
                 self.mouse_position = position;
                 self.window.as_ref().unwrap().request_redraw();
             }
+            WindowEvent::KeyboardInput { event, .. } => {
+                let key = event.logical_key;
+
+                match key {
+                    Key::Named(NamedKey::Escape) => {
+                        self.close_requested = true;
+                    }
+                    _ => (),
+                }
+            }
             WindowEvent::RedrawRequested => {
                 render(
                     &self.context.as_ref().unwrap(),
@@ -57,7 +68,8 @@ impl ApplicationHandler for MyApplicationHandler {
                     self.mouse_position,
                 );
             }
-            _ => println!("{:?} {:?}", window_id, event),
+            // _ => println!("{:?} {:?}", window_id, event),
+            _ => {}
         }
     }
 
