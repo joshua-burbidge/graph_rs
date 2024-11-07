@@ -88,26 +88,42 @@ struct Graph {
     scale: i32,
 }
 
-fn tick_marks(size: PhysicalSize<u32>, scale: i32, tick_size: i32) -> Path {
+fn tick_marks(size: PhysicalSize<u32>, scale: i32) -> (Path, Path) {
     let midpoint_x = (size.width / 2) as i32;
     let midpoint_y = (size.height / 2) as i32;
 
-    let num_ticks = midpoint_x / scale;
+    let num_x_ticks = midpoint_x / scale;
+    let num_y_ticks = midpoint_y / scale;
 
     let mut x_ticks_path = Path::new();
 
-    for i in 1..num_ticks {
+    for i in 1..num_x_ticks {
         let pos_x = (midpoint_x + scale * i) as f32;
         let neg_x = (midpoint_x - scale * i) as f32;
 
-        x_ticks_path.move_to(pos_x, (midpoint_y - tick_size / 2) as f32);
-        x_ticks_path.line_to(pos_x, (midpoint_y + tick_size / 2) as f32);
+        x_ticks_path.move_to(pos_x, 0.);
+        // x_ticks_path.move_to(pos_x, (midpoint_y - tick_size / 2) as f32);
+        x_ticks_path.line_to(pos_x, size.height as f32);
+        // x_ticks_path.line_to(pos_x, (midpoint_y + tick_size / 2) as f32);
 
-        x_ticks_path.move_to(neg_x, (midpoint_y - tick_size / 2) as f32);
-        x_ticks_path.line_to(neg_x, (midpoint_y + tick_size / 2) as f32);
+        x_ticks_path.move_to(neg_x, 0.);
+        x_ticks_path.line_to(neg_x, size.height as f32);
     }
 
-    return x_ticks_path;
+    let mut y_ticks_path = Path::new();
+
+    for i in 1..num_y_ticks {
+        let pos_y = (midpoint_y + scale * i) as f32;
+        let neg_y = (midpoint_y - scale * i) as f32;
+
+        y_ticks_path.move_to(0., pos_y);
+        y_ticks_path.line_to(size.width as f32, pos_y);
+
+        y_ticks_path.move_to(0., neg_y);
+        y_ticks_path.line_to(size.width as f32, neg_y);
+    }
+
+    return (x_ticks_path, y_ticks_path);
 }
 
 impl Graph {
@@ -125,24 +141,17 @@ impl Graph {
         y_axis.move_to(midpoint_horiz, 0.);
         y_axis.line_to(midpoint_horiz, size.height as f32);
 
-        let tick_size = 20;
-
-        let x_ticks = tick_marks(size, self.scale, tick_size);
+        let (x_ticks, y_ticks) = tick_marks(size, self.scale);
         // TODO maybe create struct for tick marks
 
         let green_paint = Paint::color(Color::rgb(0, 255, 0));
+        let axes_paint = green_paint.clone().with_line_width(3.);
 
         canvas.stroke_path(&x_ticks, &green_paint);
+        canvas.stroke_path(&y_ticks, &green_paint);
 
-        canvas.stroke_path(&x_axis, &green_paint);
-        canvas.stroke_path(&y_axis, &green_paint);
-
-        // let mut path = Path::new();
-        // path.move_to(100., 100.);
-        // path.line_to(500., 500.);
-        // path.line_to(1000., 500.);
-        // path.close(); // close: line from current point back to start
-        // canvas.stroke_path(&path, &green_paint);
+        canvas.stroke_path(&x_axis, &axes_paint);
+        canvas.stroke_path(&y_axis, &axes_paint);
     }
 }
 
@@ -154,7 +163,7 @@ fn render_canvas<T: Renderer>(window: &Window, canvas: &mut Canvas<T>) {
     // clear canvas by filling with black
     canvas.clear_rect(0, 0, size.width, size.height, Color::black());
 
-    let graph1 = Graph { size, scale: 10 };
+    let graph1 = Graph { size, scale: 20 };
     graph1.init_graph(canvas);
 }
 
