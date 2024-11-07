@@ -80,9 +80,34 @@ impl ApplicationHandler for MyApplicationHandler {
     }
 }
 
+// struct TickMark {
+//     size: i32,
+// }
 struct Graph {
     size: PhysicalSize<u32>,
     scale: i32,
+}
+
+fn tick_marks(size: PhysicalSize<u32>, scale: i32, tick_size: i32) -> Path {
+    let midpoint_x = (size.width / 2) as i32;
+    let midpoint_y = (size.height / 2) as i32;
+
+    let num_ticks = midpoint_x / scale;
+
+    let mut x_ticks_path = Path::new();
+
+    for i in 1..num_ticks {
+        let pos_x = (midpoint_x + scale * i) as f32;
+        let neg_x = (midpoint_x - scale * i) as f32;
+
+        x_ticks_path.move_to(pos_x, (midpoint_y - tick_size / 2) as f32);
+        x_ticks_path.line_to(pos_x, (midpoint_y + tick_size / 2) as f32);
+
+        x_ticks_path.move_to(neg_x, (midpoint_y - tick_size / 2) as f32);
+        x_ticks_path.line_to(neg_x, (midpoint_y + tick_size / 2) as f32);
+    }
+
+    return x_ticks_path;
 }
 
 impl Graph {
@@ -101,15 +126,9 @@ impl Graph {
         y_axis.line_to(midpoint_horiz, size.height as f32);
 
         let tick_size = 20;
-        let mut x_ticks = Path::new();
-        x_ticks.move_to(
-            midpoint_horiz + self.scale as f32,
-            midpoint_vert - (tick_size / 2) as f32,
-        );
-        x_ticks.line_to(
-            midpoint_horiz + self.scale as f32,
-            midpoint_vert + (tick_size / 2) as f32,
-        );
+
+        let x_ticks = tick_marks(size, self.scale, tick_size);
+        // TODO maybe create struct for tick marks
 
         let green_paint = Paint::color(Color::rgb(0, 255, 0));
 
