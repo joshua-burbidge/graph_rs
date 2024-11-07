@@ -80,8 +80,14 @@ impl ApplicationHandler for MyApplicationHandler {
     }
 }
 
+// enum Axis {
+//     X,
+//     Y,
+// }
 // struct TickMark {
-//     size: i32,
+//     size: PhysicalSize<u32>,
+//     num: i32,
+//     axis: Axis,
 // }
 struct Graph {
     size: PhysicalSize<u32>,
@@ -178,10 +184,10 @@ fn render<T: Renderer>(
 
     // Make smol red rectangle
     canvas.clear_rect(
-        square_position.x as u32,
-        square_position.y as u32,
-        30,
-        30,
+        (square_position.x - 5.) as u32,
+        (square_position.y - 5.) as u32,
+        10,
+        10,
         Color::rgbf(1., 0., 0.),
     );
 
