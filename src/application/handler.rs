@@ -133,7 +133,7 @@ fn tick_marks(size: PhysicalSize<u32>, scale: i32) -> (Path, Path) {
 }
 
 impl Graph {
-    fn init_graph<T: Renderer>(self, canvas: &mut Canvas<T>) {
+    fn init_graph<T: Renderer>(&self, canvas: &mut Canvas<T>) {
         let size = self.size;
 
         let mut x_axis = Path::new();
@@ -159,6 +159,60 @@ impl Graph {
         canvas.stroke_path(&x_axis, &axes_paint);
         canvas.stroke_path(&y_axis, &axes_paint);
     }
+
+    // fn get_min_x(self) -> i32 {}
+    // fn get_min_y(self) -> i32 {}
+
+    fn convert_point_to_px(&self, point: Point) -> (i32, i32) {
+        let zero_zero = ((self.size.width / 2) as i32, (self.size.height / 2) as i32);
+        let (zero_x, zero_y) = zero_zero;
+
+        let position_x = zero_x + (point.x * self.scale);
+        let position_y = zero_y - (point.y * self.scale);
+
+        (position_x, position_y)
+    }
+
+    fn graph_linear<T: Renderer>(self, equation: Equation, canvas: &mut Canvas<T>) {
+        // let point_interval = 10;
+        // TODO compute min and max x and y values
+        // loop through range
+
+        let point_1 = Point {
+            x: 0,
+            y: equation.calc(0),
+        };
+        let point_2 = Point {
+            x: 5,
+            y: equation.calc(5),
+        };
+
+        let mut path = Path::new();
+
+        let point_1_px = self.convert_point_to_px(point_1);
+        let point_2_px = self.convert_point_to_px(point_2);
+        path.move_to(point_1_px.0 as f32, point_1_px.1 as f32);
+        path.line_to(point_2_px.0 as f32, point_2_px.1 as f32);
+
+        let red_paint = Paint::color(Color::rgb(255, 0, 0));
+        canvas.stroke_path(&path, &red_paint);
+    }
+}
+// TODO point class that translates point to pixel
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+struct Equation {
+    a: i32,
+    b: i32,
+}
+
+impl Equation {
+    fn calc(&self, x: i32) -> i32 {
+        self.a * x + self.b
+    }
 }
 
 fn render_canvas<T: Renderer>(window: &Window, canvas: &mut Canvas<T>) {
@@ -171,6 +225,9 @@ fn render_canvas<T: Renderer>(window: &Window, canvas: &mut Canvas<T>) {
 
     let graph1 = Graph { size, scale: 20 };
     graph1.init_graph(canvas);
+
+    let eq1 = Equation { a: 2, b: 1 };
+    graph1.graph_linear(eq1, canvas);
 }
 
 fn render<T: Renderer>(
