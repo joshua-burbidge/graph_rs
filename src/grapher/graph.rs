@@ -1,7 +1,7 @@
 use femtovg::{Canvas, Color, Paint, Path, Renderer};
 use winit::dpi::PhysicalSize;
 
-use super::equation::Equation;
+use super::equation::{Calculate, Equation};
 
 enum _Axis {
     X,

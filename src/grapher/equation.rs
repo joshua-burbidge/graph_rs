@@ -3,8 +3,12 @@ pub struct Equation {
     pub b: f32,
 }
 
-impl Equation {
-    pub fn calc(&self, x: f32) -> f32 {
+pub trait Calculate {
+    fn calc(&self, x: f32) -> f32;
+}
+
+impl Calculate for Equation {
+    fn calc(&self, x: f32) -> f32 {
         self.a * x + self.b
     }
 }
