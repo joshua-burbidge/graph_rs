@@ -1,7 +1,7 @@
 use femtovg::{renderer::OpenGl, Canvas, Color, Paint, Path};
 use winit::dpi::PhysicalSize;
 
-use super::equation::{Calculate, Equation};
+use super::equation::{Calculate, Linear, Quadratic};
 
 enum _Axis {
     X,
@@ -123,13 +123,36 @@ impl<'a> Graph<'a> {
         (position_x, position_y)
     }
 
-    pub fn graph_linear(&mut self, equation: Equation) {
+    pub fn graph_linear(&mut self, equation: Linear) {
         let (min_x, max_x) = self.get_x_range();
 
         let mut eq_path = Path::new();
 
         // works because it's linear, general case would be "in min_x..(max_x + 1)"
         for i in [min_x, max_x] {
+            let point = Point {
+                x: i as f32,
+                y: equation.calc(i as f32),
+            };
+            let point_px = self.convert_point_to_px(point);
+
+            if eq_path.is_empty() {
+                eq_path.move_to(point_px.0, point_px.1);
+            } else {
+                eq_path.line_to(point_px.0, point_px.1);
+            }
+        }
+
+        let red_paint = Paint::color(Color::rgb(255, 0, 0));
+        self.canvas.stroke_path(&eq_path, &red_paint);
+    }
+
+    pub fn graph_quad(&mut self, equation: Quadratic) {
+        let (min_x, max_x) = self.get_x_range();
+
+        let mut eq_path = Path::new();
+
+        for i in min_x..max_x {
             let point = Point {
                 x: i as f32,
                 y: equation.calc(i as f32),
