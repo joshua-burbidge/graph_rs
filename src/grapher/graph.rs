@@ -26,25 +26,28 @@ impl<'a> Graph<'a> {
     }
 
     pub fn init_graph(&mut self) {
-        let size = self.size;
+        let mut axes = Path::new();
 
-        let mut x_axis = Path::new();
-        let mut y_axis = Path::new();
-        let midpoint_vert = (size.height / 2) as f32;
-        let midpoint_horiz = (size.width / 2) as f32;
+        let (min_x, max_x) = self.get_x_range();
+        let (min_y, max_y) = self.get_y_range();
 
-        x_axis.move_to(0., midpoint_vert);
-        x_axis.line_to(size.width as f32, midpoint_vert);
+        let x_axis_start = self.convert_point_to_px(Point::from_ints(min_x, 0));
+        let x_axis_end = self.convert_point_to_px(Point::from_ints(max_x, 0));
 
-        y_axis.move_to(midpoint_horiz, 0.);
-        y_axis.line_to(midpoint_horiz, size.height as f32);
+        let y_axis_start = self.convert_point_to_px(Point::from_ints(0, min_y));
+        let y_axis_end = self.convert_point_to_px(Point::from_ints(0, max_y));
+
+        axes.move_to(x_axis_start.0, x_axis_start.1);
+        axes.line_to(x_axis_end.0, x_axis_start.1);
+
+        axes.move_to(y_axis_start.0, y_axis_start.1);
+        axes.line_to(y_axis_end.0, y_axis_end.1);
 
         self.tick_marks();
 
         let axes_paint = Paint::color(Color::rgb(0, 255, 0)).with_line_width(3.);
 
-        self.canvas.stroke_path(&x_axis, &axes_paint);
-        self.canvas.stroke_path(&y_axis, &axes_paint);
+        self.canvas.stroke_path(&axes, &axes_paint);
     }
 
     fn tick_marks(&mut self) {
