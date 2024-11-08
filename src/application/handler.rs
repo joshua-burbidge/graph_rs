@@ -1,5 +1,5 @@
 use femtovg::renderer::OpenGl;
-use femtovg::{Canvas, Color, Renderer};
+use femtovg::{Canvas, Color};
 use glutin::context::PossiblyCurrentContext;
 use glutin::surface::Surface;
 use glutin::{prelude::*, surface::WindowSurface};
@@ -75,7 +75,7 @@ impl ApplicationHandler for MyApplicationHandler {
     }
 }
 
-fn render_canvas<T: Renderer>(window: &Window, canvas: &mut Canvas<T>) {
+fn render_canvas(window: &Window, canvas: &mut Canvas<OpenGl>) {
     // Make sure the canvas has the right size:
     let size = window.inner_size();
     canvas.set_size(size.width, size.height, window.scale_factor() as f32);
@@ -83,18 +83,18 @@ fn render_canvas<T: Renderer>(window: &Window, canvas: &mut Canvas<T>) {
     // clear canvas by filling with black
     canvas.clear_rect(0, 0, size.width, size.height, Color::black());
 
-    let graph1 = Graph { size, scale: 20 };
-    graph1.init_graph(canvas);
+    let mut graph1 = Graph::new(size, 20, canvas);
+    graph1.init_graph();
 
     let eq1 = Equation { a: 0.5, b: -1. };
-    graph1.graph_linear(eq1, canvas);
+    graph1.graph_linear(eq1);
 }
 
-fn render<T: Renderer>(
+fn render(
     context: &PossiblyCurrentContext,
     surface: &Surface<WindowSurface>,
     window: &Window,
-    canvas: &mut Canvas<T>,
+    canvas: &mut Canvas<OpenGl>,
 ) {
     render_canvas(window, canvas);
 

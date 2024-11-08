@@ -1,4 +1,4 @@
-use femtovg::{Canvas, Color, Paint, Path, Renderer};
+use femtovg::{renderer::OpenGl, Canvas, Color, Paint, Path};
 use winit::dpi::PhysicalSize;
 
 use super::equation::{Calculate, Equation};
@@ -10,13 +10,22 @@ enum _Axis {
 
 // graph should be responsible for all paths and pixel conversions
 // so that other structs can mathematical units
-pub struct Graph {
+pub struct Graph<'a> {
     pub size: PhysicalSize<u32>,
     pub scale: i32,
+    pub canvas: &'a mut Canvas<OpenGl>,
 }
 
-impl Graph {
-    pub fn init_graph<T: Renderer>(&self, canvas: &mut Canvas<T>) {
+impl<'a> Graph<'a> {
+    pub fn new(size: PhysicalSize<u32>, scale: i32, canvas: &'a mut Canvas<OpenGl>) -> Self {
+        Graph {
+            size,
+            scale,
+            canvas,
+        }
+    }
+
+    pub fn init_graph(&mut self) {
         let size = self.size;
 
         let mut x_axis = Path::new();
@@ -35,11 +44,11 @@ impl Graph {
         let green_paint = Paint::color(Color::rgb(0, 255, 0)).with_line_width(0.5);
         let axes_paint = green_paint.clone().with_line_width(3.);
 
-        canvas.stroke_path(&x_ticks, &green_paint);
-        canvas.stroke_path(&y_ticks, &green_paint);
+        self.canvas.stroke_path(&x_ticks, &green_paint);
+        self.canvas.stroke_path(&y_ticks, &green_paint);
 
-        canvas.stroke_path(&x_axis, &axes_paint);
-        canvas.stroke_path(&y_axis, &axes_paint);
+        self.canvas.stroke_path(&x_axis, &axes_paint);
+        self.canvas.stroke_path(&y_axis, &axes_paint);
     }
 
     fn tick_marks(&self) -> (Path, Path) {
@@ -104,7 +113,7 @@ impl Graph {
         (position_x, position_y)
     }
 
-    pub fn graph_linear<T: Renderer>(self, equation: Equation, canvas: &mut Canvas<T>) {
+    pub fn graph_linear(&mut self, equation: Equation) {
         let (min_x, max_x) = self.get_x_range();
 
         let mut eq_path = Path::new();
@@ -125,7 +134,7 @@ impl Graph {
         }
 
         let red_paint = Paint::color(Color::rgb(255, 0, 0));
-        canvas.stroke_path(&eq_path, &red_paint);
+        self.canvas.stroke_path(&eq_path, &red_paint);
     }
 }
 
