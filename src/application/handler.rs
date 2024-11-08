@@ -4,7 +4,7 @@ use glutin::context::PossiblyCurrentContext;
 use glutin::surface::Surface;
 use glutin::{prelude::*, surface::WindowSurface};
 use winit::application::ApplicationHandler;
-use winit::dpi::{PhysicalPosition, PhysicalSize};
+use winit::dpi::PhysicalSize;
 use winit::event::WindowEvent;
 use winit::event_loop::ActiveEventLoop;
 use winit::keyboard::{Key, NamedKey};
@@ -16,7 +16,6 @@ use crate::application::femtovg_init;
 #[derive(Default)]
 pub struct MyApplicationHandler {
     close_requested: bool,
-    mouse_position: PhysicalPosition<f64>,
     window: Option<Window>,
     context: Option<PossiblyCurrentContext>,
     surface: Option<Surface<WindowSurface>>,
@@ -45,10 +44,6 @@ impl ApplicationHandler for MyApplicationHandler {
             WindowEvent::CloseRequested => {
                 self.close_requested = true;
             }
-            WindowEvent::CursorMoved { position, .. } => {
-                self.mouse_position = position;
-                self.window.as_ref().unwrap().request_redraw();
-            }
             WindowEvent::KeyboardInput { event, .. } => {
                 let key = event.logical_key;
 
@@ -65,7 +60,6 @@ impl ApplicationHandler for MyApplicationHandler {
                     &self.surface.as_ref().unwrap(),
                     &self.window.as_ref().unwrap(),
                     &mut self.canvas.as_mut().unwrap(),
-                    self.mouse_position,
                 );
             }
             // _ => println!("{:?} {:?}", window_id, event),
@@ -247,18 +241,8 @@ fn render<T: Renderer>(
     surface: &Surface<WindowSurface>,
     window: &Window,
     canvas: &mut Canvas<T>,
-    square_position: PhysicalPosition<f64>,
 ) {
     render_canvas(window, canvas);
-
-    // Make smol red rectangle
-    canvas.clear_rect(
-        (square_position.x - 5.) as u32,
-        (square_position.y - 5.) as u32,
-        10,
-        10,
-        Color::rgbf(1., 0., 0.),
-    );
 
     // Tell renderer to execute all drawing commands
     canvas.flush();
