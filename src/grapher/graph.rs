@@ -39,42 +39,52 @@ impl<'a> Graph<'a> {
         y_axis.move_to(midpoint_horiz, 0.);
         y_axis.line_to(midpoint_horiz, size.height as f32);
 
-        let (x_ticks, y_ticks) = self.tick_marks();
+        self.tick_marks();
 
-        let green_paint = Paint::color(Color::rgb(0, 255, 0)).with_line_width(0.5);
-        let axes_paint = green_paint.clone().with_line_width(3.);
-
-        self.canvas.stroke_path(&x_ticks, &green_paint);
-        self.canvas.stroke_path(&y_ticks, &green_paint);
+        let axes_paint = Paint::color(Color::rgb(0, 255, 0)).with_line_width(3.);
 
         self.canvas.stroke_path(&x_axis, &axes_paint);
         self.canvas.stroke_path(&y_axis, &axes_paint);
     }
 
-    fn tick_marks(&self) -> (Path, Path) {
+    fn tick_marks(&mut self) {
         let (min_x, max_x) = self.get_x_range();
         let (min_y, max_y) = self.get_y_range();
 
-        let mut x_ticks_path = Path::new();
-        let mut y_ticks_path = Path::new();
+        let mut ticks_path = Path::new();
+        let mut significant_ticks_path = Path::new();
 
         for x in min_x..(max_x + 1) {
             let start_px = self.convert_point_to_px(Point::from_ints(x, min_y));
             let end_px = self.convert_point_to_px(Point::from_ints(x, max_y));
 
-            x_ticks_path.move_to(start_px.0, start_px.1);
-            x_ticks_path.line_to(end_px.0, end_px.1);
+            if x % 10 == 0 {
+                significant_ticks_path.move_to(start_px.0, start_px.1);
+                significant_ticks_path.line_to(end_px.0, end_px.1);
+            } else {
+                ticks_path.move_to(start_px.0, start_px.1);
+                ticks_path.line_to(end_px.0, end_px.1);
+            }
         }
 
         for y in min_y..(max_y + 1) {
             let start_px = self.convert_point_to_px(Point::from_ints(min_x, y));
             let end_px = self.convert_point_to_px(Point::from_ints(max_x, y));
 
-            y_ticks_path.move_to(start_px.0, start_px.1);
-            y_ticks_path.line_to(end_px.0, end_px.1);
+            if y % 10 == 0 {
+                significant_ticks_path.move_to(start_px.0, start_px.1);
+                significant_ticks_path.line_to(end_px.0, end_px.1);
+            } else {
+                ticks_path.move_to(start_px.0, start_px.1);
+                ticks_path.line_to(end_px.0, end_px.1);
+            }
         }
 
-        (x_ticks_path, y_ticks_path)
+        let green_paint = Paint::color(Color::rgb(0, 255, 0)).with_line_width(0.4);
+        let wider_paint = green_paint.clone().with_line_width(0.6);
+        self.canvas.stroke_path(&ticks_path, &green_paint);
+        self.canvas
+            .stroke_path(&significant_ticks_path, &wider_paint);
     }
 
     fn zero_zero_px(&self) -> (f32, f32) {
