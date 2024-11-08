@@ -151,15 +151,12 @@ impl<'a> Graph<'a> {
         let (min_x, max_x) = self.get_x_range();
         let points_per_unit = 100;
 
-        let loop_bounds = (
-            (min_x * points_per_unit) as i16,
-            (max_x * points_per_unit) as i16,
-        );
+        let loop_bounds = ((min_x * points_per_unit), (max_x * points_per_unit));
 
         let mut eq_path = Path::new();
 
         for i in loop_bounds.0..loop_bounds.1 {
-            let x = f32::from(i) / points_per_unit as f32;
+            let x = i as f32 / points_per_unit as f32;
 
             let point = Point {
                 x,
