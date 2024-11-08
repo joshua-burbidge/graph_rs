@@ -158,11 +158,26 @@ impl Graph {
         canvas.stroke_path(&y_axis, &axes_paint);
     }
 
-    // fn get_min_x(self) -> i32 {}
+    fn zero_zero_px(&self) -> (f32, f32) {
+        let zero_x_px: f32 = (self.size.width / 2) as f32;
+        let zero_y_px: f32 = (self.size.height / 2) as f32;
+        (zero_x_px, zero_y_px)
+    }
+
+    // get x range in units, returns the first int greater than the screen size
+    fn get_x_range(&self) -> (i32, i32) {
+        let midpoint_x = (self.size.width / 2) as i32;
+        let num_x_ticks = midpoint_x / self.scale + 1;
+
+        let min_x = num_x_ticks * -1;
+        let max_x = num_x_ticks;
+
+        (min_x, max_x)
+    }
     // fn get_min_y(self) -> i32 {}
 
     fn convert_point_to_px(&self, point: Point) -> (f32, f32) {
-        let zero_zero = ((self.size.width / 2) as f32, (self.size.height / 2) as f32);
+        let zero_zero = self.zero_zero_px();
         let (zero_x, zero_y) = zero_zero;
 
         let position_x = zero_x + (point.x * self.scale as f32);
@@ -172,28 +187,26 @@ impl Graph {
     }
 
     fn graph_linear<T: Renderer>(self, equation: Equation, canvas: &mut Canvas<T>) {
-        // let point_interval = 10;
-        // TODO compute min and max x and y values
-        // loop through range
+        let (min_x, max_x) = self.get_x_range();
 
-        let point_1 = Point {
-            x: 0.,
-            y: equation.calc(0.),
-        };
-        let point_2 = Point {
-            x: 5.,
-            y: equation.calc(5.),
-        };
+        let mut eq_path = Path::new();
 
-        let mut path = Path::new();
+        for i in min_x..(max_x + 1) {
+            let point = Point {
+                x: i as f32,
+                y: equation.calc(i as f32),
+            };
+            let point_px = self.convert_point_to_px(point);
 
-        let point_1_px = self.convert_point_to_px(point_1);
-        let point_2_px = self.convert_point_to_px(point_2);
-        path.move_to(point_1_px.0 as f32, point_1_px.1 as f32);
-        path.line_to(point_2_px.0 as f32, point_2_px.1 as f32);
+            if eq_path.is_empty() {
+                eq_path.move_to(point_px.0, point_px.1);
+            } else {
+                eq_path.line_to(point_px.0, point_px.1);
+            }
+        }
 
         let red_paint = Paint::color(Color::rgb(255, 0, 0));
-        canvas.stroke_path(&path, &red_paint);
+        canvas.stroke_path(&eq_path, &red_paint);
     }
 }
 // TODO point class that translates point to pixel
@@ -224,7 +237,7 @@ fn render_canvas<T: Renderer>(window: &Window, canvas: &mut Canvas<T>) {
     let graph1 = Graph { size, scale: 20 };
     graph1.init_graph(canvas);
 
-    let eq1 = Equation { a: 2., b: 1. };
+    let eq1 = Equation { a: 0.5, b: -1. };
     graph1.graph_linear(eq1, canvas);
 }
 
