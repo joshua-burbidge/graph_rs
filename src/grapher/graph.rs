@@ -1,7 +1,7 @@
 use femtovg::{renderer::OpenGl, Canvas, Color, Paint, Path};
 use winit::dpi::PhysicalSize;
 
-use super::equation::{Calculate, Linear, Quadratic};
+use super::equation::{Calculate, Linear};
 
 enum _Axis {
     X,
@@ -147,7 +147,7 @@ impl<'a> Graph<'a> {
         self.canvas.stroke_path(&eq_path, &red_paint);
     }
 
-    pub fn graph_quad(&mut self, equation: Quadratic) {
+    pub fn graph_poly<T: Calculate>(&mut self, equation: T) {
         let (min_x, max_x) = self.get_x_range();
         let points_per_unit = 100;
 

@@ -11,7 +11,7 @@ use winit::window::Window;
 use winit::window::WindowId;
 
 use super::femtovg_init;
-use crate::grapher::equation::{Linear, Quadratic};
+use crate::grapher::equation::{Cubic, Linear, Quadratic};
 use crate::grapher::graph::Graph;
 
 #[derive(Default)]
@@ -86,15 +86,23 @@ fn render_canvas(window: &Window, canvas: &mut Canvas<OpenGl>) {
     let mut graph1 = Graph::new(size, 60, canvas);
     graph1.init_graph();
 
-    let eq1 = Linear { a: 0.5, b: -1. };
-    graph1.graph_linear(eq1);
+    // let eq1 = Linear { a: 0.5, b: -1. };
+    // graph1.graph_linear(eq1);
 
-    let eq2 = Quadratic {
-        a: 0.5,
-        b: 0.,
-        c: -1.,
+    // let eq2 = Quadratic {
+    //     a: 0.5,
+    //     b: 0.,
+    //     c: -1.,
+    // };
+    // graph1.graph_poly(eq2);
+
+    let eq3 = Cubic {
+        a: 0.2,
+        b: -2.,
+        c: 1.,
+        d: 0.,
     };
-    graph1.graph_quad(eq2);
+    graph1.graph_poly(eq3);
 }
 
 fn render(
