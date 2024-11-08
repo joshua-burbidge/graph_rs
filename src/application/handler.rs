@@ -191,7 +191,8 @@ impl Graph {
 
         let mut eq_path = Path::new();
 
-        for i in min_x..(max_x + 1) {
+        // works because it's linear, general case would be "in min_x..(max_x + 1)"
+        for i in [min_x, max_x] {
             let point = Point {
                 x: i as f32,
                 y: equation.calc(i as f32),
