@@ -50,20 +50,16 @@ impl Graph {
         let mut y_ticks_path = Path::new();
 
         for x in min_x..(max_x + 1) {
-            let start = Point::new(x, min_y);
-            let start_px = self.convert_point_to_px(start);
-            let end = Point::new(x, max_y);
-            let end_px = self.convert_point_to_px(end);
+            let start_px = self.convert_point_to_px(Point::from_ints(x, min_y));
+            let end_px = self.convert_point_to_px(Point::from_ints(x, max_y));
 
             x_ticks_path.move_to(start_px.0, start_px.1);
             x_ticks_path.line_to(end_px.0, end_px.1);
         }
 
         for y in min_y..(max_y + 1) {
-            let start = Point::new(min_x, y);
-            let start_px = self.convert_point_to_px(start);
-            let end = Point::new(max_x, y);
-            let end_px = self.convert_point_to_px(end);
+            let start_px = self.convert_point_to_px(Point::from_ints(min_x, y));
+            let end_px = self.convert_point_to_px(Point::from_ints(max_x, y));
 
             y_ticks_path.move_to(start_px.0, start_px.1);
             y_ticks_path.line_to(end_px.0, end_px.1);
@@ -139,7 +135,7 @@ struct Point {
 }
 
 impl Point {
-    fn new(x: i32, y: i32) -> Self {
+    fn from_ints(x: i32, y: i32) -> Self {
         Point {
             x: x as f32,
             y: y as f32,
