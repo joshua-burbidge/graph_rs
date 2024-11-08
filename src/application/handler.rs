@@ -62,7 +62,7 @@ impl ApplicationHandler for MyApplicationHandler {
                 MouseScrollDelta::LineDelta(_x_delta, y_delta) => {
                     let new_scale = self.scale + y_delta as i32;
 
-                    if new_scale != 0 {
+                    if new_scale > 0 {
                         self.scale = new_scale;
                         self.window.as_ref().unwrap().request_redraw();
                     }
