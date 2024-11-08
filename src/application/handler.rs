@@ -12,7 +12,7 @@ use winit::window::Window;
 use winit::window::WindowId;
 
 use super::femtovg_init;
-use crate::grapher::equation::{Cubic, Linear, Quadratic};
+use crate::grapher::equation::{Cubic, Linear, Polynomial, Quadratic, Term};
 use crate::grapher::graph::Graph;
 
 #[derive(Default)]
@@ -154,13 +154,17 @@ fn render_canvas(
     // };
     // graph1.graph_poly(eq2);
 
-    let eq3 = Cubic {
-        a: 0.2,
-        b: -2.,
-        c: 1.,
-        d: 0.,
-    };
-    graph1.graph_poly(eq3);
+    // let eq3 = Cubic {
+    //     a: 0.01,
+    //     b: -0.2,
+    //     c: 1.,
+    //     d: 0.,
+    // };
+    // graph1.graph_poly(eq3);
+
+    let terms = vec![Term::new(1., 6), Term::new(-4., 4), Term::new(3., 2)];
+    let eq_poly: Polynomial = Polynomial::new(terms);
+    graph1.graph_poly(eq_poly);
 }
 
 fn render(

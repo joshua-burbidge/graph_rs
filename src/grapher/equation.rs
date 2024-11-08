@@ -3,6 +3,7 @@ enum _Equation {
     Quadratic,
 }
 
+// TODO genericize polynomial types
 pub struct Linear {
     pub a: f32,
     pub b: f32,
@@ -19,6 +20,40 @@ pub struct Cubic {
     pub b: f32,
     pub c: f32,
     pub d: f32,
+}
+
+#[derive(Default)]
+pub struct Polynomial {
+    terms: Vec<Term>,
+}
+
+impl Calculate for Polynomial {
+    fn calc(&self, x: f32) -> f32 {
+        let mut sum = 0.;
+
+        for term in &self.terms {
+            let term_value = term.c * x.powi(term.power);
+            sum += term_value;
+        }
+
+        sum
+    }
+}
+
+impl Polynomial {
+    pub fn new(terms: Vec<Term>) -> Self {
+        Polynomial { terms }
+    }
+}
+
+pub struct Term {
+    power: i32,
+    c: f32,
+}
+impl Term {
+    pub fn new(c: f32, power: i32) -> Self {
+        Term { power, c }
+    }
 }
 
 pub trait Calculate {
