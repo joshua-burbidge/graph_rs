@@ -2,6 +2,7 @@ use application::handler::MyApplicationHandler;
 use winit::event_loop::EventLoop;
 
 pub mod application;
+pub mod grapher;
 
 fn main() {
     let event_loop = EventLoop::new().expect("failed to create event loop");
