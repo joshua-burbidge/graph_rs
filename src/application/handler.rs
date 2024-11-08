@@ -98,8 +98,8 @@ fn tick_marks(size: PhysicalSize<u32>, scale: i32) -> (Path, Path) {
     let midpoint_x = (size.width / 2) as i32;
     let midpoint_y = (size.height / 2) as i32;
 
-    let num_x_ticks = midpoint_x / scale;
-    let num_y_ticks = midpoint_y / scale;
+    let num_x_ticks = midpoint_x / scale + 1;
+    let num_y_ticks = midpoint_y / scale + 1;
 
     let mut x_ticks_path = Path::new();
 
@@ -108,9 +108,7 @@ fn tick_marks(size: PhysicalSize<u32>, scale: i32) -> (Path, Path) {
         let neg_x = (midpoint_x - scale * i) as f32;
 
         x_ticks_path.move_to(pos_x, 0.);
-        // x_ticks_path.move_to(pos_x, (midpoint_y - tick_size / 2) as f32);
         x_ticks_path.line_to(pos_x, size.height as f32);
-        // x_ticks_path.line_to(pos_x, (midpoint_y + tick_size / 2) as f32);
 
         x_ticks_path.move_to(neg_x, 0.);
         x_ticks_path.line_to(neg_x, size.height as f32);
