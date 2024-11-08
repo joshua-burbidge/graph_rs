@@ -1,5 +1,5 @@
 use femtovg::{renderer::OpenGl, Canvas, Color, Paint, Path};
-use winit::dpi::PhysicalSize;
+use winit::dpi::{PhysicalPosition, PhysicalSize};
 
 use super::equation::{Calculate, Linear};
 
@@ -13,15 +13,22 @@ enum _Axis {
 pub struct Graph<'a> {
     pub size: PhysicalSize<u32>,
     pub scale: i32,
+    offset: PhysicalPosition<f32>,
     pub canvas: &'a mut Canvas<OpenGl>,
 }
 
 impl<'a> Graph<'a> {
-    pub fn new(size: PhysicalSize<u32>, scale: i32, canvas: &'a mut Canvas<OpenGl>) -> Self {
+    pub fn new(
+        size: PhysicalSize<u32>,
+        scale: i32,
+        offset: PhysicalPosition<f32>,
+        canvas: &'a mut Canvas<OpenGl>,
+    ) -> Self {
         Graph {
             size,
             scale,
             canvas,
+            offset,
         }
     }
 
@@ -93,12 +100,13 @@ impl<'a> Graph<'a> {
     fn zero_zero_px(&self) -> (f32, f32) {
         let zero_x_px: f32 = (self.size.width / 2) as f32;
         let zero_y_px: f32 = (self.size.height / 2) as f32;
-        (zero_x_px, zero_y_px)
-        // (zero_x_px, zero_y_px - 600.)
+
+        (zero_x_px + self.offset.x, zero_y_px + self.offset.y)
     }
 
     // get x range in units, returns the first int greater than the screen size
-    // works if zero zero is on screen
+    // works if 0,0 is on screen
+    // also works if 0,0 is off screen but adds an extra point off screen
     fn get_x_range(&self) -> (i32, i32) {
         let (zero_x, _zero_y) = self.zero_zero_px();
 
@@ -115,7 +123,7 @@ impl<'a> Graph<'a> {
     fn get_y_range(&self) -> (i32, i32) {
         let (_zero_x, zero_y) = self.zero_zero_px();
 
-        let num_y_ticks_above = zero_y as i32 / self.scale + 1; // should be increasing abs value by 1 instead of adding
+        let num_y_ticks_above = zero_y as i32 / self.scale + 1; // don't need the +1 when negative offset
         let num_y_ticks_below = (self.size.height as i32 - zero_y as i32) / self.scale + 1;
 
         let min_y = num_y_ticks_below * -1;

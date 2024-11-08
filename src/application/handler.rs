@@ -4,7 +4,8 @@ use glutin::context::PossiblyCurrentContext;
 use glutin::surface::Surface;
 use glutin::{prelude::*, surface::WindowSurface};
 use winit::application::ApplicationHandler;
-use winit::event::{MouseScrollDelta, WindowEvent};
+use winit::dpi::PhysicalPosition;
+use winit::event::{ElementState, MouseScrollDelta, WindowEvent};
 use winit::event_loop::ActiveEventLoop;
 use winit::keyboard::{Key, NamedKey};
 use winit::window::Window;
@@ -18,6 +19,9 @@ use crate::grapher::graph::Graph;
 pub struct MyApplicationHandler {
     close_requested: bool,
     scale: i32,
+    dragging: bool,
+    previous_position: Option<PhysicalPosition<f32>>,
+    offset: PhysicalPosition<f32>,
     window: Option<Window>,
     context: Option<PossiblyCurrentContext>,
     surface: Option<Surface<WindowSurface>>,
@@ -36,6 +40,8 @@ impl ApplicationHandler for MyApplicationHandler {
         self.surface = Some(surface);
         self.canvas = Some(canvas);
         self.scale = 50;
+        self.dragging = false;
+        self.offset = PhysicalPosition::new(0., 0.);
     }
 
     fn window_event(
@@ -69,6 +75,37 @@ impl ApplicationHandler for MyApplicationHandler {
                 }
                 _ => {}
             },
+            WindowEvent::MouseInput { state, .. } => match state {
+                ElementState::Pressed => {
+                    self.dragging = true;
+                }
+                ElementState::Released => {
+                    self.dragging = false;
+                    self.previous_position = None;
+                }
+            },
+            WindowEvent::CursorMoved { position, .. } => {
+                if !self.dragging {
+                    return;
+                }
+
+                let new_position = position.cast::<f32>();
+                match self.previous_position {
+                    None => {
+                        self.previous_position = Some(new_position);
+                    }
+                    Some(previous_position) => {
+                        let delta_x = new_position.x - previous_position.x;
+                        let delta_y = new_position.y - previous_position.y;
+
+                        self.offset =
+                            PhysicalPosition::new(self.offset.x + delta_x, self.offset.y + delta_y);
+
+                        self.previous_position = Some(new_position);
+                        self.window.as_ref().unwrap().request_redraw();
+                    }
+                }
+            }
             WindowEvent::RedrawRequested => {
                 render(
                     &self.context.as_ref().unwrap(),
@@ -76,6 +113,7 @@ impl ApplicationHandler for MyApplicationHandler {
                     &self.window.as_ref().unwrap(),
                     &mut self.canvas.as_mut().unwrap(),
                     self.scale,
+                    self.offset,
                 );
             }
             // _ => println!("{:?}", event),
@@ -90,7 +128,12 @@ impl ApplicationHandler for MyApplicationHandler {
     }
 }
 
-fn render_canvas(window: &Window, canvas: &mut Canvas<OpenGl>, scale: i32) {
+fn render_canvas(
+    window: &Window,
+    canvas: &mut Canvas<OpenGl>,
+    scale: i32,
+    offset: PhysicalPosition<f32>,
+) {
     // Make sure the canvas has the right size:
     let size = window.inner_size();
     canvas.set_size(size.width, size.height, window.scale_factor() as f32);
@@ -98,7 +141,7 @@ fn render_canvas(window: &Window, canvas: &mut Canvas<OpenGl>, scale: i32) {
     // clear canvas by filling with black
     canvas.clear_rect(0, 0, size.width, size.height, Color::black());
 
-    let mut graph1 = Graph::new(size, scale, canvas);
+    let mut graph1 = Graph::new(size, scale, offset, canvas);
     graph1.init_graph();
 
     // let eq1 = Linear { a: 0.5, b: -1. };
@@ -126,8 +169,9 @@ fn render(
     window: &Window,
     canvas: &mut Canvas<OpenGl>,
     scale: i32,
+    offset: PhysicalPosition<f32>,
 ) {
-    render_canvas(window, canvas, scale);
+    render_canvas(window, canvas, scale, offset);
 
     // Tell renderer to execute all drawing commands
     canvas.flush();
