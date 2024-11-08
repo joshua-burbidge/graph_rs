@@ -94,24 +94,34 @@ impl<'a> Graph<'a> {
         let zero_x_px: f32 = (self.size.width / 2) as f32;
         let zero_y_px: f32 = (self.size.height / 2) as f32;
         (zero_x_px, zero_y_px)
+        // (zero_x_px, zero_y_px - 600.)
     }
 
     // get x range in units, returns the first int greater than the screen size
+    // works if zero zero is on screen
     fn get_x_range(&self) -> (i32, i32) {
-        let midpoint_x = (self.size.width / 2) as i32;
-        let num_x_ticks = midpoint_x / self.scale + 1;
+        let (zero_x, _zero_y) = self.zero_zero_px();
 
-        let min_x = num_x_ticks * -1;
-        let max_x = num_x_ticks;
+        let num_x_ticks_left = zero_x as i32 / self.scale + 1;
+        let num_x_ticks_right = (self.size.width as i32 - zero_x as i32) / self.scale + 1;
+
+        let min_x = num_x_ticks_left * -1;
+        let max_x = num_x_ticks_right;
+
+        // println!("x: {min_x} {max_x}");
 
         (min_x, max_x)
     }
     fn get_y_range(&self) -> (i32, i32) {
-        let midpoint_y = (self.size.height / 2) as i32;
-        let num_y_ticks = midpoint_y / self.scale + 1;
+        let (_zero_x, zero_y) = self.zero_zero_px();
 
-        let min_y = num_y_ticks * -1;
-        let max_y = num_y_ticks;
+        let num_y_ticks_above = zero_y as i32 / self.scale + 1; // should be increasing abs value by 1 instead of adding
+        let num_y_ticks_below = (self.size.height as i32 - zero_y as i32) / self.scale + 1;
+
+        let min_y = num_y_ticks_below * -1;
+        let max_y = num_y_ticks_above;
+
+        // println!("y: {min_y} {max_y}");
 
         (min_y, max_y)
     }
