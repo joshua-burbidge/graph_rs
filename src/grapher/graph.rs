@@ -3,55 +3,16 @@ use winit::dpi::PhysicalSize;
 
 use super::equation::Equation;
 
-// enum Axis {
-//     X,
-//     Y,
-// }
-// struct TickMark {
-//     size: PhysicalSize<u32>,
-//     num: i32,
-//     axis: Axis,
-// }
+enum _Axis {
+    X,
+    Y,
+}
 
+// graph should be responsible for all paths and pixel conversions
+// so that other structs can mathematical units
 pub struct Graph {
     pub size: PhysicalSize<u32>,
     pub scale: i32,
-}
-
-fn tick_marks(size: PhysicalSize<u32>, scale: i32) -> (Path, Path) {
-    let midpoint_x = (size.width / 2) as i32;
-    let midpoint_y = (size.height / 2) as i32;
-
-    let num_x_ticks = midpoint_x / scale + 1;
-    let num_y_ticks = midpoint_y / scale + 1;
-
-    let mut x_ticks_path = Path::new();
-
-    for i in 1..num_x_ticks {
-        let pos_x = (midpoint_x + scale * i) as f32;
-        let neg_x = (midpoint_x - scale * i) as f32;
-
-        x_ticks_path.move_to(pos_x, 0.);
-        x_ticks_path.line_to(pos_x, size.height as f32);
-
-        x_ticks_path.move_to(neg_x, 0.);
-        x_ticks_path.line_to(neg_x, size.height as f32);
-    }
-
-    let mut y_ticks_path = Path::new();
-
-    for i in 1..num_y_ticks {
-        let pos_y = (midpoint_y + scale * i) as f32;
-        let neg_y = (midpoint_y - scale * i) as f32;
-
-        y_ticks_path.move_to(0., pos_y);
-        y_ticks_path.line_to(size.width as f32, pos_y);
-
-        y_ticks_path.move_to(0., neg_y);
-        y_ticks_path.line_to(size.width as f32, neg_y);
-    }
-
-    return (x_ticks_path, y_ticks_path);
 }
 
 impl Graph {
@@ -69,8 +30,7 @@ impl Graph {
         y_axis.move_to(midpoint_horiz, 0.);
         y_axis.line_to(midpoint_horiz, size.height as f32);
 
-        let (x_ticks, y_ticks) = tick_marks(size, self.scale);
-        // TODO maybe create struct for tick marks
+        let (x_ticks, y_ticks) = self.tick_marks();
 
         let green_paint = Paint::color(Color::rgb(0, 255, 0)).with_line_width(0.5);
         let axes_paint = green_paint.clone().with_line_width(3.);
@@ -80,6 +40,36 @@ impl Graph {
 
         canvas.stroke_path(&x_axis, &axes_paint);
         canvas.stroke_path(&y_axis, &axes_paint);
+    }
+
+    fn tick_marks(&self) -> (Path, Path) {
+        let (min_x, max_x) = self.get_x_range();
+        let (min_y, max_y) = self.get_y_range();
+
+        let mut x_ticks_path = Path::new();
+        let mut y_ticks_path = Path::new();
+
+        for x in min_x..(max_x + 1) {
+            let start = Point::new(x, min_y);
+            let start_px = self.convert_point_to_px(start);
+            let end = Point::new(x, max_y);
+            let end_px = self.convert_point_to_px(end);
+
+            x_ticks_path.move_to(start_px.0, start_px.1);
+            x_ticks_path.line_to(end_px.0, end_px.1);
+        }
+
+        for y in min_y..(max_y + 1) {
+            let start = Point::new(min_x, y);
+            let start_px = self.convert_point_to_px(start);
+            let end = Point::new(max_x, y);
+            let end_px = self.convert_point_to_px(end);
+
+            y_ticks_path.move_to(start_px.0, start_px.1);
+            y_ticks_path.line_to(end_px.0, end_px.1);
+        }
+
+        (x_ticks_path, y_ticks_path)
     }
 
     fn zero_zero_px(&self) -> (f32, f32) {
@@ -98,7 +88,15 @@ impl Graph {
 
         (min_x, max_x)
     }
-    // fn get_min_y(self) -> i32 {}
+    fn get_y_range(&self) -> (i32, i32) {
+        let midpoint_y = (self.size.height / 2) as i32;
+        let num_y_ticks = midpoint_y / self.scale + 1;
+
+        let min_y = num_y_ticks * -1;
+        let max_y = num_y_ticks;
+
+        (min_y, max_y)
+    }
 
     fn convert_point_to_px(&self, point: Point) -> (f32, f32) {
         let zero_zero = self.zero_zero_px();
@@ -138,4 +136,13 @@ impl Graph {
 struct Point {
     x: f32,
     y: f32,
+}
+
+impl Point {
+    fn new(x: i32, y: i32) -> Self {
+        Point {
+            x: x as f32,
+            y: y as f32,
+        }
+    }
 }
