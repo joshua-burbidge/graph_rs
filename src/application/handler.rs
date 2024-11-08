@@ -83,16 +83,16 @@ fn render_canvas(window: &Window, canvas: &mut Canvas<OpenGl>) {
     // clear canvas by filling with black
     canvas.clear_rect(0, 0, size.width, size.height, Color::black());
 
-    let mut graph1 = Graph::new(size, 20, canvas);
+    let mut graph1 = Graph::new(size, 60, canvas);
     graph1.init_graph();
 
     let eq1 = Linear { a: 0.5, b: -1. };
     graph1.graph_linear(eq1);
 
     let eq2 = Quadratic {
-        a: 1.,
+        a: 0.5,
         b: 0.,
-        c: 1.,
+        c: -1.,
     };
     graph1.graph_quad(eq2);
 }

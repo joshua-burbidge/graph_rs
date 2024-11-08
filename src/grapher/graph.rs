@@ -149,13 +149,21 @@ impl<'a> Graph<'a> {
 
     pub fn graph_quad(&mut self, equation: Quadratic) {
         let (min_x, max_x) = self.get_x_range();
+        let points_per_unit = 100;
+
+        let loop_bounds = (
+            (min_x * points_per_unit) as i16,
+            (max_x * points_per_unit) as i16,
+        );
 
         let mut eq_path = Path::new();
 
-        for i in min_x..max_x {
+        for i in loop_bounds.0..loop_bounds.1 {
+            let x = f32::from(i) / points_per_unit as f32;
+
             let point = Point {
-                x: i as f32,
-                y: equation.calc(i as f32),
+                x,
+                y: equation.calc(x),
             };
             let point_px = self.convert_point_to_px(point);
 
