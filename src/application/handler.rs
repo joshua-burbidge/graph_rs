@@ -4,7 +4,7 @@ use glutin::context::PossiblyCurrentContext;
 use glutin::surface::Surface;
 use glutin::{prelude::*, surface::WindowSurface};
 use winit::application::ApplicationHandler;
-use winit::event::WindowEvent;
+use winit::event::{MouseScrollDelta, WindowEvent};
 use winit::event_loop::ActiveEventLoop;
 use winit::keyboard::{Key, NamedKey};
 use winit::window::Window;
@@ -17,6 +17,7 @@ use crate::grapher::graph::Graph;
 #[derive(Default)]
 pub struct MyApplicationHandler {
     close_requested: bool,
+    scale: i32,
     window: Option<Window>,
     context: Option<PossiblyCurrentContext>,
     surface: Option<Surface<WindowSurface>>,
@@ -27,12 +28,14 @@ impl ApplicationHandler for MyApplicationHandler {
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
         let (context, mut canvas, window, surface) = femtovg_init::init_canvas(&event_loop);
 
+        println!("resumed");
         canvas.set_size(1000, 600, window.scale_factor() as f32);
 
         self.window = Some(window);
         self.context = Some(context);
         self.surface = Some(surface);
         self.canvas = Some(canvas);
+        self.scale = 50;
     }
 
     fn window_event(
@@ -55,15 +58,27 @@ impl ApplicationHandler for MyApplicationHandler {
                     _ => (),
                 }
             }
+            WindowEvent::MouseWheel { delta, .. } => match delta {
+                MouseScrollDelta::LineDelta(_x_delta, y_delta) => {
+                    let new_scale = self.scale + y_delta as i32;
+
+                    if new_scale != 0 {
+                        self.scale = new_scale;
+                        self.window.as_ref().unwrap().request_redraw();
+                    }
+                }
+                _ => {}
+            },
             WindowEvent::RedrawRequested => {
                 render(
                     &self.context.as_ref().unwrap(),
                     &self.surface.as_ref().unwrap(),
                     &self.window.as_ref().unwrap(),
                     &mut self.canvas.as_mut().unwrap(),
+                    self.scale,
                 );
             }
-            // _ => println!("{:?} {:?}", window_id, event),
+            // _ => println!("{:?}", event),
             _ => {}
         }
     }
@@ -75,7 +90,7 @@ impl ApplicationHandler for MyApplicationHandler {
     }
 }
 
-fn render_canvas(window: &Window, canvas: &mut Canvas<OpenGl>) {
+fn render_canvas(window: &Window, canvas: &mut Canvas<OpenGl>, scale: i32) {
     // Make sure the canvas has the right size:
     let size = window.inner_size();
     canvas.set_size(size.width, size.height, window.scale_factor() as f32);
@@ -83,7 +98,7 @@ fn render_canvas(window: &Window, canvas: &mut Canvas<OpenGl>) {
     // clear canvas by filling with black
     canvas.clear_rect(0, 0, size.width, size.height, Color::black());
 
-    let mut graph1 = Graph::new(size, 60, canvas);
+    let mut graph1 = Graph::new(size, scale, canvas);
     graph1.init_graph();
 
     // let eq1 = Linear { a: 0.5, b: -1. };
@@ -110,8 +125,9 @@ fn render(
     surface: &Surface<WindowSurface>,
     window: &Window,
     canvas: &mut Canvas<OpenGl>,
+    scale: i32,
 ) {
-    render_canvas(window, canvas);
+    render_canvas(window, canvas, scale);
 
     // Tell renderer to execute all drawing commands
     canvas.flush();
