@@ -10,7 +10,7 @@ use winit::keyboard::{Key, NamedKey};
 use winit::window::Window;
 use winit::window::WindowId;
 
-use crate::application::femtovg_init;
+use super::femtovg_init;
 use crate::grapher::equation::Equation;
 use crate::grapher::graph::Graph;
 
