@@ -97,7 +97,7 @@ impl Term {
     pub fn new(c: f32, power: i32) -> Self {
         Term { power, c }
     }
-    pub fn plus_x_to_the(power: i32) -> Self {
+    pub fn x_to_the(power: i32) -> Self {
         Term { power, c: 1. }
     }
     pub fn times(mut self, c: f32) -> Self {

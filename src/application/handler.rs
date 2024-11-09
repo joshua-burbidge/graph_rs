@@ -168,7 +168,7 @@ fn render_canvas(
     graph1.graph_poly(cubic);
 
     let poly: Polynomial = PolynomialBuilder::new()
-        .add_term(Term::plus_x_to_the(6).times(0.5))
+        .add_term(Term::x_to_the(6).times(0.5))
         .plus_x_4th_times(-4.)
         .plus_x_squared_times(3.)
         .plus_const(-1.)
