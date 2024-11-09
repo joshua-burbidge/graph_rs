@@ -1,4 +1,6 @@
-#[derive(Default)]
+use std::fmt::{Debug, Display};
+
+#[derive(Default, Debug)]
 pub struct Polynomial {
     terms: Vec<Term>,
 }
@@ -9,7 +11,7 @@ impl Polynomial {
     }
 }
 
-pub trait Calculate {
+pub trait Calculate: Debug + Display {
     fn calc(&self, x: f32) -> f32;
 }
 
@@ -23,6 +25,16 @@ impl Calculate for Polynomial {
         }
 
         sum
+    }
+}
+
+impl Display for Polynomial {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        for item in self.terms.iter() {
+            // Print each element
+            write!(f, "{} ", item)?;
+        }
+        Ok(())
     }
 }
 
@@ -76,6 +88,7 @@ impl PolynomialBuilder {
     }
 }
 
+#[derive(Debug)]
 pub struct Term {
     power: i32,
     c: f32,
@@ -90,5 +103,16 @@ impl Term {
     pub fn times(mut self, c: f32) -> Self {
         self.c = c;
         self
+    }
+}
+impl Display for Term {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let sign = if self.c.is_sign_positive() { "+" } else { "-" };
+        let x_power = match self.power {
+            0 => String::from(""),
+            1 => String::from("x"),
+            _ => format!("x^{}", self.power),
+        };
+        write!(f, "{} {:4}{:3}", sign, self.c.abs(), x_power)
     }
 }

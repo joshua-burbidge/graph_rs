@@ -32,7 +32,6 @@ impl ApplicationHandler for MyApplicationHandler {
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
         let (context, mut canvas, window, surface) = femtovg_init::init_canvas(&event_loop);
 
-        println!("resumed");
         canvas.set_size(1000, 600, window.scale_factor() as f32);
 
         self.window = Some(window);
