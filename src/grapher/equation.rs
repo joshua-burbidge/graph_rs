@@ -1,24 +1,6 @@
 enum _Equation {
-    Linear,
-    Quadratic,
-}
-
-pub struct Linear {
-    pub a: f32,
-    pub b: f32,
-}
-
-pub struct Quadratic {
-    pub a: f32,
-    pub b: f32,
-    pub c: f32,
-}
-
-pub struct Cubic {
-    pub a: f32,
-    pub b: f32,
-    pub c: f32,
-    pub d: f32,
+    Linear(Polynomial),
+    Polynomial(Polynomial),
 }
 
 #[derive(Default)]
@@ -42,6 +24,22 @@ impl Calculate for Polynomial {
 impl Polynomial {
     pub fn new(terms: Vec<Term>) -> Self {
         Polynomial { terms }
+    }
+}
+
+pub trait CouldBeLinear {
+    fn is_linear(&self) -> bool;
+}
+
+impl CouldBeLinear for Polynomial {
+    fn is_linear(&self) -> bool {
+        for term in &self.terms {
+            if term.power > 1 {
+                return false;
+            }
+        }
+
+        true
     }
 }
 
@@ -98,22 +96,4 @@ impl Term {
 
 pub trait Calculate {
     fn calc(&self, x: f32) -> f32;
-}
-
-impl Calculate for Linear {
-    fn calc(&self, x: f32) -> f32 {
-        self.a * x + self.b
-    }
-}
-
-impl Calculate for Quadratic {
-    fn calc(&self, x: f32) -> f32 {
-        self.a * (x.powi(2)) + self.b * x + self.c
-    }
-}
-
-impl Calculate for Cubic {
-    fn calc(&self, x: f32) -> f32 {
-        self.a * (x.powi(3)) + self.b * x.powi(2) + self.c * x + self.d
-    }
 }

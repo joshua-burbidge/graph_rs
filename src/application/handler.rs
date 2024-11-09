@@ -12,7 +12,7 @@ use winit::window::Window;
 use winit::window::WindowId;
 
 use super::femtovg_init;
-use crate::grapher::equation::{Linear, Polynomial, PolynomialBuilder, Term};
+use crate::grapher::equation::{Polynomial, PolynomialBuilder, Term};
 use crate::grapher::graph::Graph;
 
 #[derive(Default)]
@@ -144,8 +144,11 @@ fn render_canvas(
     let mut graph1 = Graph::new(size, scale, offset, canvas);
     graph1.init_graph();
 
-    // let eq1 = Linear { a: 0.5, b: -1. };
-    // graph1.graph_linear(eq1);
+    let linear = PolynomialBuilder::new()
+        .plus_x_times(0.5)
+        .plus_const(1.)
+        .build();
+    graph1.graph_poly(linear);
 
     let quad: Polynomial = PolynomialBuilder::new()
         .plus_x_squared_times(0.5)

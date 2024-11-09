@@ -1,7 +1,7 @@
 use femtovg::{renderer::OpenGl, Canvas, Color, Paint, Path};
 use winit::dpi::{PhysicalPosition, PhysicalSize};
 
-use super::equation::{Calculate, Linear};
+use super::equation::{Calculate, CouldBeLinear};
 
 enum _Axis {
     X,
@@ -144,7 +144,7 @@ impl<'a> Graph<'a> {
         (position_x, position_y)
     }
 
-    pub fn graph_linear(&mut self, equation: Linear) {
+    fn graph_linear<T: Calculate>(&mut self, equation: T) {
         let (min_x, max_x) = self.get_x_range();
 
         let mut eq_path = Path::new();
@@ -168,7 +168,11 @@ impl<'a> Graph<'a> {
         self.canvas.stroke_path(&eq_path, &red_paint);
     }
 
-    pub fn graph_poly<T: Calculate>(&mut self, equation: T) {
+    pub fn graph_poly<T: Calculate + CouldBeLinear>(&mut self, equation: T) {
+        if equation.is_linear() {
+            self.graph_linear(equation);
+            return;
+        }
         let (min_x, max_x) = self.get_x_range();
         let points_per_unit = 100;
 
