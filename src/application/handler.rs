@@ -12,7 +12,7 @@ use winit::window::Window;
 use winit::window::WindowId;
 
 use super::femtovg_init;
-use crate::grapher::equation::{Cubic, Linear, Polynomial, Quadratic, Term};
+use crate::grapher::equation::{Linear, Polynomial, PolynomialBuilder, Term};
 use crate::grapher::graph::Graph;
 
 #[derive(Default)]
@@ -147,24 +147,28 @@ fn render_canvas(
     // let eq1 = Linear { a: 0.5, b: -1. };
     // graph1.graph_linear(eq1);
 
-    // let eq2 = Quadratic {
-    //     a: 0.5,
-    //     b: 0.,
-    //     c: -1.,
-    // };
-    // graph1.graph_poly(eq2);
+    let quad: Polynomial = PolynomialBuilder::new()
+        .plus_x_squared_times(0.5)
+        .plus_x_times(0.)
+        .plus_const(-1.)
+        .build();
+    graph1.graph_poly(quad);
 
-    // let eq3 = Cubic {
-    //     a: 0.01,
-    //     b: -0.2,
-    //     c: 1.,
-    //     d: 0.,
-    // };
-    // graph1.graph_poly(eq3);
+    let cubic: Polynomial = PolynomialBuilder::new()
+        .plus_x_cubed_times(0.01)
+        .plus_x_squared_times(-0.2)
+        .plus_x_times(1.)
+        .plus_const(0.)
+        .build();
+    graph1.graph_poly(cubic);
 
-    let terms = vec![Term::new(1., 6), Term::new(-4., 4), Term::new(3., 2)];
-    let eq_poly: Polynomial = Polynomial::new(terms);
-    graph1.graph_poly(eq_poly);
+    let poly: Polynomial = PolynomialBuilder::new()
+        .add_term(Term::plus_x_to_the(6).times(0.5))
+        .plus_x_4th_times(-4.)
+        .plus_x_squared_times(3.)
+        .plus_const(-1.)
+        .build();
+    graph1.graph_poly(poly);
 }
 
 fn render(

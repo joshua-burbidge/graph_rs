@@ -3,7 +3,6 @@ enum _Equation {
     Quadratic,
 }
 
-// TODO genericize polynomial types
 pub struct Linear {
     pub a: f32,
     pub b: f32,
@@ -46,6 +45,40 @@ impl Polynomial {
     }
 }
 
+pub struct PolynomialBuilder {
+    terms: Vec<Term>,
+}
+
+impl PolynomialBuilder {
+    pub fn new() -> Self {
+        PolynomialBuilder {
+            terms: Vec::<Term>::new(),
+        }
+    }
+    pub fn add_term(mut self, term: Term) -> Self {
+        self.terms.push(term);
+        self
+    }
+    pub fn build(self) -> Polynomial {
+        Polynomial { terms: self.terms }
+    }
+    pub fn plus_const(self, coeff: f32) -> Self {
+        self.add_term(Term { c: coeff, power: 0 })
+    }
+    pub fn plus_x_times(self, coeff: f32) -> Self {
+        self.add_term(Term { c: coeff, power: 1 })
+    }
+    pub fn plus_x_squared_times(self, coeff: f32) -> Self {
+        self.add_term(Term { c: coeff, power: 2 })
+    }
+    pub fn plus_x_cubed_times(self, coeff: f32) -> Self {
+        self.add_term(Term { c: coeff, power: 3 })
+    }
+    pub fn plus_x_4th_times(self, coeff: f32) -> Self {
+        self.add_term(Term { c: coeff, power: 4 })
+    }
+}
+
 pub struct Term {
     power: i32,
     c: f32,
@@ -53,6 +86,13 @@ pub struct Term {
 impl Term {
     pub fn new(c: f32, power: i32) -> Self {
         Term { power, c }
+    }
+    pub fn plus_x_to_the(power: i32) -> Self {
+        Term { power, c: 1. }
+    }
+    pub fn times(mut self, c: f32) -> Self {
+        self.c = c;
+        self
     }
 }
 
