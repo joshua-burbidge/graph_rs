@@ -83,6 +83,9 @@ impl ApplicationHandler for MyApplicationHandler {
                     self.previous_position = None;
                 }
             },
+            // now: center stays same position
+            // therefore the cursor moves towards the center when zooming in, away when zooming out
+            // move the center away from the cursor on a line?
             WindowEvent::CursorMoved { position, .. } => {
                 if !self.dragging {
                     return;
