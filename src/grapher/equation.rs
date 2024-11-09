@@ -1,11 +1,16 @@
-enum _Equation {
-    Linear(Polynomial),
-    Polynomial(Polynomial),
-}
-
 #[derive(Default)]
 pub struct Polynomial {
     terms: Vec<Term>,
+}
+
+impl Polynomial {
+    pub fn new(terms: Vec<Term>) -> Self {
+        Polynomial { terms }
+    }
+}
+
+pub trait Calculate {
+    fn calc(&self, x: f32) -> f32;
 }
 
 impl Calculate for Polynomial {
@@ -18,12 +23,6 @@ impl Calculate for Polynomial {
         }
 
         sum
-    }
-}
-
-impl Polynomial {
-    pub fn new(terms: Vec<Term>) -> Self {
-        Polynomial { terms }
     }
 }
 
@@ -92,8 +91,4 @@ impl Term {
         self.c = c;
         self
     }
-}
-
-pub trait Calculate {
-    fn calc(&self, x: f32) -> f32;
 }
