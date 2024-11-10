@@ -12,7 +12,7 @@ enum _Axis {
 // so that other structs can mathematical units
 pub struct Graph<'a> {
     pub size: PhysicalSize<u32>,
-    pub scale: i32,
+    pub scale: f32,
     offset: PhysicalPosition<f32>,
     pub canvas: &'a mut Canvas<OpenGl>,
 }
@@ -20,7 +20,7 @@ pub struct Graph<'a> {
 impl<'a> Graph<'a> {
     pub fn new(
         size: PhysicalSize<u32>,
-        scale: i32,
+        scale: f32,
         offset: PhysicalPosition<f32>,
         canvas: &'a mut Canvas<OpenGl>,
     ) -> Self {
@@ -110,26 +110,23 @@ impl<'a> Graph<'a> {
     fn get_x_range(&self) -> (i32, i32) {
         let (zero_x, _zero_y) = self.zero_zero_px();
 
-        let num_x_ticks_left = zero_x as i32 / self.scale + 1;
-        let num_x_ticks_right = (self.size.width as i32 - zero_x as i32) / self.scale + 1;
+        let num_x_ticks_left = (zero_x / self.scale).ceil() as i32; // without + 1 the edge would be empty until more than half is showing
+        let num_x_ticks_right = ((self.size.width as f32 - zero_x) / self.scale).ceil() as i32;
+        // when it would round down we need the +1, when it would round up we don't
 
         let min_x = num_x_ticks_left * -1;
         let max_x = num_x_ticks_right;
-
-        // println!("x: {min_x} {max_x}");
 
         (min_x, max_x)
     }
     fn get_y_range(&self) -> (i32, i32) {
         let (_zero_x, zero_y) = self.zero_zero_px();
 
-        let num_y_ticks_above = zero_y as i32 / self.scale + 1; // don't need the +1 when negative offset
-        let num_y_ticks_below = (self.size.height as i32 - zero_y as i32) / self.scale + 1;
+        let num_y_ticks_above = (zero_y / self.scale).ceil() as i32;
+        let num_y_ticks_below = ((self.size.height as f32 - zero_y) / self.scale).ceil() as i32;
 
         let min_y = num_y_ticks_below * -1;
         let max_y = num_y_ticks_above;
-
-        // println!("y: {min_y} {max_y}");
 
         (min_y, max_y)
     }

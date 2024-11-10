@@ -18,7 +18,7 @@ use crate::grapher::graph::Graph;
 #[derive(Default)]
 pub struct MyApplicationHandler {
     close_requested: bool,
-    scale: i32,
+    scale: f32,
     dragging: bool,
     previous_position: Option<PhysicalPosition<f32>>,
     offset: PhysicalPosition<f32>,
@@ -38,7 +38,7 @@ impl ApplicationHandler for MyApplicationHandler {
         self.context = Some(context);
         self.surface = Some(surface);
         self.canvas = Some(canvas);
-        self.scale = 50;
+        self.scale = 50.;
         self.dragging = false;
         self.offset = PhysicalPosition::new(0., 0.);
     }
@@ -69,11 +69,15 @@ impl ApplicationHandler for MyApplicationHandler {
             // (scale_change * offset / current scale) = offset change
             WindowEvent::MouseWheel { delta, .. } => match delta {
                 MouseScrollDelta::LineDelta(_x_delta, y_delta) => {
-                    let new_scale = self.scale + y_delta as i32;
+                    let scale_increment = y_delta * 0.2; // adjust zoom speed
 
-                    if new_scale > 0 {
-                        let offset_change_x = y_delta * self.offset.x / self.scale as f32;
-                        let offset_change_y = y_delta * self.offset.y / self.scale as f32;
+                    // log and exp so that the zoom speed feels the same when large and small
+                    let new_scale = (self.scale.ln() + scale_increment).exp();
+
+                    if new_scale > 1. {
+                        let scale_change = new_scale - self.scale;
+                        let offset_change_x = scale_change * self.offset.x / self.scale;
+                        let offset_change_y = scale_change * self.offset.y / self.scale;
 
                         self.offset = PhysicalPosition::new(
                             self.offset.x + offset_change_x,
@@ -144,7 +148,7 @@ impl ApplicationHandler for MyApplicationHandler {
 fn render_canvas(
     window: &Window,
     canvas: &mut Canvas<OpenGl>,
-    scale: i32,
+    scale: f32,
     offset: PhysicalPosition<f32>,
 ) {
     // Make sure the canvas has the right size:
@@ -211,7 +215,7 @@ fn render(
     surface: &Surface<WindowSurface>,
     window: &Window,
     canvas: &mut Canvas<OpenGl>,
-    scale: i32,
+    scale: f32,
     offset: PhysicalPosition<f32>,
 ) {
     render_canvas(window, canvas, scale, offset);
