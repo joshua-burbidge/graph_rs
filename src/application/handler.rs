@@ -63,11 +63,22 @@ impl ApplicationHandler for MyApplicationHandler {
                     _ => (),
                 }
             }
+            // make it zoom to the center of the screen
+            // each scale increment means one more pixel per unit away from 0,0
+            // (scale_change * units from target to 0,0) = offset change
+            // (scale_change * offset / current scale) = offset change
             WindowEvent::MouseWheel { delta, .. } => match delta {
                 MouseScrollDelta::LineDelta(_x_delta, y_delta) => {
                     let new_scale = self.scale + y_delta as i32;
 
                     if new_scale > 0 {
+                        let offset_change_x = y_delta * self.offset.x / self.scale as f32;
+                        let offset_change_y = y_delta * self.offset.y / self.scale as f32;
+
+                        self.offset = PhysicalPosition::new(
+                            self.offset.x + offset_change_x,
+                            self.offset.y + offset_change_y,
+                        );
                         self.scale = new_scale;
                         self.window.as_ref().unwrap().request_redraw();
                     }
@@ -174,6 +185,25 @@ fn render_canvas(
         .plus_const(-1.)
         .build();
     graph1.graph_poly(poly);
+
+    // let mut path = Path::new();
+    // let mut points = Path::new();
+
+    // let paint = Paint::color(Color::rgbf(1., 0., 0.));
+
+    // let c1 = (100., 300.);
+    // let c2 = (300., 300.);
+    // let start = (100., 100.);
+    // let end = (300., 100.);
+
+    // for point in [c1, c2, start, end] {
+    //     points.circle(point.0, point.1, 3.);
+    // }
+
+    // path.move_to(start.0, start.1);
+    // path.bezier_to(c1.0, c1.1, c2.0, c2.1, end.0, end.1);
+    // canvas.stroke_path(&path, &paint);
+    // canvas.fill_path(&points, &paint);
 }
 
 fn render(
