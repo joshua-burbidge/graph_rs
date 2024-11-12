@@ -171,14 +171,18 @@ impl<'a> Graph<'a> {
             return;
         }
         let (min_x, max_x) = self.get_x_range();
-        let points_per_unit = 100;
 
-        let loop_bounds = ((min_x * points_per_unit), (max_x * points_per_unit));
+        let capped_points_per_unit = if self.scale > 200. { 200. } else { self.scale };
+        let ppu_rounded = capped_points_per_unit.round() as i32;
+        // set ppu based on scale so the performance is ok for small scale
+        // cap so peformance doesn't degrade at large scale where there is more off-screen graph
+
+        let loop_bounds = ((min_x * ppu_rounded), (max_x * ppu_rounded));
 
         let mut eq_path = Path::new();
 
         for i in loop_bounds.0..loop_bounds.1 {
-            let x = i as f32 / points_per_unit as f32;
+            let x = i as f32 / ppu_rounded as f32;
 
             let point = Point {
                 x,
