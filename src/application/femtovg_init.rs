@@ -14,12 +14,12 @@ use glutin::{
 use glutin_winit::DisplayBuilder;
 #[allow(deprecated)]
 use raw_window_handle::HasRawWindowHandle;
-use winit::event_loop::ActiveEventLoop;
+use winit::event_loop::EventLoop;
 use winit::window::WindowAttributes;
 use winit::{dpi::PhysicalSize, window::Window};
 
-pub fn init_canvas(
-    event_loop: &ActiveEventLoop,
+pub fn init_canvas<T>(
+    event_loop: &EventLoop<T>,
 ) -> (
     PossiblyCurrentContext,
     Canvas<OpenGl>,
@@ -80,7 +80,8 @@ pub fn init_canvas(
         unsafe { OpenGl::new_from_function_cstr(|s| gl_display.get_proc_address(s).cast()) }
             .expect("Cannot create renderer");
 
-    let canvas = Canvas::new(renderer).expect("Cannot create canvas");
+    let mut canvas = Canvas::new(renderer).expect("Cannot create canvas");
+    canvas.set_size(1000, 600, window.scale_factor() as f32);
 
     (current_context, canvas, window, surface)
 }

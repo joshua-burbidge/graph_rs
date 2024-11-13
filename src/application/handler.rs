@@ -11,36 +11,47 @@ use winit::keyboard::{Key, NamedKey};
 use winit::window::Window;
 use winit::window::WindowId;
 
-use super::femtovg_init;
 use crate::grapher::equation::{Polynomial, PolynomialBuilder, Term};
 use crate::grapher::graph::Graph;
 
-#[derive(Default)]
 pub struct MyApplicationHandler {
     close_requested: bool,
     scale: f32,
     dragging: bool,
     previous_position: Option<PhysicalPosition<f32>>,
     offset: PhysicalPosition<f32>,
-    window: Option<Window>,
-    context: Option<PossiblyCurrentContext>,
-    surface: Option<Surface<WindowSurface>>,
-    canvas: Option<Canvas<OpenGl>>,
+    window: Window,
+    context: PossiblyCurrentContext,
+    surface: Surface<WindowSurface>,
+    canvas: Canvas<OpenGl>,
+}
+
+impl MyApplicationHandler {
+    pub fn new(
+        window: Window,
+        context: PossiblyCurrentContext,
+        surface: Surface<WindowSurface>,
+        canvas: Canvas<OpenGl>,
+        scale: f32,
+    ) -> Self {
+        let def_position = PhysicalPosition::<f32>::default();
+        MyApplicationHandler {
+            window,
+            context,
+            surface,
+            canvas,
+            offset: def_position,
+            previous_position: None,
+            dragging: false,
+            scale,
+            close_requested: false,
+        }
+    }
 }
 
 impl ApplicationHandler for MyApplicationHandler {
-    fn resumed(&mut self, event_loop: &ActiveEventLoop) {
-        let (context, mut canvas, window, surface) = femtovg_init::init_canvas(&event_loop);
-
-        canvas.set_size(1000, 600, window.scale_factor() as f32);
-
-        self.window = Some(window);
-        self.context = Some(context);
-        self.surface = Some(surface);
-        self.canvas = Some(canvas);
-        self.scale = 50.;
-        self.dragging = false;
-        self.offset = PhysicalPosition::new(0., 0.);
+    fn resumed(&mut self, _event_loop: &ActiveEventLoop) {
+        // try to render only after this happens?
     }
 
     fn window_event(
@@ -84,7 +95,7 @@ impl ApplicationHandler for MyApplicationHandler {
                             self.offset.y + offset_change_y,
                         );
                         self.scale = new_scale;
-                        self.window.as_ref().unwrap().request_redraw();
+                        self.window.request_redraw();
                     }
                 }
                 _ => {}
@@ -119,16 +130,16 @@ impl ApplicationHandler for MyApplicationHandler {
                             PhysicalPosition::new(self.offset.x + delta_x, self.offset.y + delta_y);
 
                         self.previous_position = Some(new_position);
-                        self.window.as_ref().unwrap().request_redraw();
+                        self.window.request_redraw();
                     }
                 }
             }
             WindowEvent::RedrawRequested => {
                 render(
-                    &self.context.as_ref().unwrap(),
-                    &self.surface.as_ref().unwrap(),
-                    &self.window.as_ref().unwrap(),
-                    &mut self.canvas.as_mut().unwrap(),
+                    &self.context,
+                    &self.surface,
+                    &self.window,
+                    &mut self.canvas,
                     self.scale,
                     self.offset,
                 );
