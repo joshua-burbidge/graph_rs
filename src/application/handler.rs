@@ -11,7 +11,7 @@ use winit::keyboard::{Key, NamedKey};
 use winit::window::Window;
 use winit::window::WindowId;
 
-use crate::grapher::equation::{Polynomial, PolynomialBuilder, Term};
+use crate::grapher::equation::Polynomial;
 use crate::grapher::graph::Graph;
 
 pub struct MyApplicationHandler {
@@ -24,6 +24,7 @@ pub struct MyApplicationHandler {
     context: PossiblyCurrentContext,
     surface: Surface<WindowSurface>,
     canvas: Canvas<OpenGl>,
+    equations: Vec<Polynomial>,
 }
 
 impl MyApplicationHandler {
@@ -33,6 +34,7 @@ impl MyApplicationHandler {
         surface: Surface<WindowSurface>,
         canvas: Canvas<OpenGl>,
         scale: f32,
+        equations: Vec<Polynomial>,
     ) -> Self {
         let def_position = PhysicalPosition::<f32>::default();
         MyApplicationHandler {
@@ -40,6 +42,7 @@ impl MyApplicationHandler {
             context,
             surface,
             canvas,
+            equations,
             offset: def_position,
             previous_position: None,
             dragging: false,
@@ -142,6 +145,7 @@ impl ApplicationHandler for MyApplicationHandler {
                     &mut self.canvas,
                     self.scale,
                     self.offset,
+                    &self.equations,
                 );
             }
             // _ => println!("{:?}", event),
@@ -161,6 +165,7 @@ fn render_canvas(
     canvas: &mut Canvas<OpenGl>,
     scale: f32,
     offset: PhysicalPosition<f32>,
+    equations: &Vec<Polynomial>,
 ) {
     // Make sure the canvas has the right size:
     let size = window.inner_size();
@@ -172,53 +177,9 @@ fn render_canvas(
     let mut graph1 = Graph::new(size, scale, offset, canvas);
     graph1.init_graph();
 
-    let linear = PolynomialBuilder::new()
-        .plus_x_times(0.5)
-        .plus_const(1.)
-        .build();
-    graph1.graph_poly(linear);
-
-    let quad: Polynomial = PolynomialBuilder::new()
-        .plus_x_squared_times(0.5)
-        .plus_x_times(0.)
-        .plus_const(-1.)
-        .build();
-    graph1.graph_poly(quad);
-
-    let cubic: Polynomial = PolynomialBuilder::new()
-        .plus_x_cubed_times(0.01)
-        .plus_x_squared_times(-0.2)
-        .plus_x_times(1.)
-        .plus_const(0.)
-        .build();
-    graph1.graph_poly(cubic);
-
-    let poly: Polynomial = PolynomialBuilder::new()
-        .add_term(Term::x_to_the(6).times(0.5))
-        .plus_x_4th_times(-4.)
-        .plus_x_squared_times(3.)
-        .plus_const(-1.)
-        .build();
-    graph1.graph_poly(poly);
-
-    // let mut path = Path::new();
-    // let mut points = Path::new();
-
-    // let paint = Paint::color(Color::rgbf(1., 0., 0.));
-
-    // let c1 = (100., 300.);
-    // let c2 = (300., 300.);
-    // let start = (100., 100.);
-    // let end = (300., 100.);
-
-    // for point in [c1, c2, start, end] {
-    //     points.circle(point.0, point.1, 3.);
-    // }
-
-    // path.move_to(start.0, start.1);
-    // path.bezier_to(c1.0, c1.1, c2.0, c2.1, end.0, end.1);
-    // canvas.stroke_path(&path, &paint);
-    // canvas.fill_path(&points, &paint);
+    for equation in equations {
+        graph1.graph_poly(equation);
+    }
 }
 
 fn render(
@@ -228,8 +189,9 @@ fn render(
     canvas: &mut Canvas<OpenGl>,
     scale: f32,
     offset: PhysicalPosition<f32>,
+    equations: &Vec<Polynomial>,
 ) {
-    render_canvas(window, canvas, scale, offset);
+    render_canvas(window, canvas, scale, offset, equations);
 
     // Tell renderer to execute all drawing commands
     canvas.flush();

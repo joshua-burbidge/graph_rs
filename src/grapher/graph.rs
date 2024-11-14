@@ -141,7 +141,7 @@ impl<'a> Graph<'a> {
         (position_x, position_y)
     }
 
-    fn graph_linear<T: Calculate>(&mut self, equation: T) {
+    fn graph_linear<T: Calculate>(&mut self, equation: &T) {
         let (min_x, max_x) = self.get_x_range();
 
         let mut eq_path = Path::new();
@@ -165,7 +165,7 @@ impl<'a> Graph<'a> {
         self.canvas.stroke_path(&eq_path, &red_paint);
     }
 
-    pub fn graph_poly<T: Calculate + CouldBeLinear>(&mut self, equation: T) {
+    pub fn graph_poly<T: Calculate + CouldBeLinear>(&mut self, equation: &T) {
         if equation.is_linear() {
             self.graph_linear(equation);
             return;
