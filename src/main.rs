@@ -50,6 +50,7 @@ fn main() {
     let (context, canvas, window, surface) = femtovg_init::init_canvas(&event_loop);
     let default_scale = 50.;
 
+    window.focus_window();
     let mut app =
         MyApplicationHandler::new(window, context, surface, canvas, default_scale, equations);
 

@@ -3,6 +3,8 @@ use std::{env, io};
 
 use crate::grapher::equation::{Polynomial, Term};
 
+// TODO allow space between sign and term
+
 pub fn parse_equation() -> Polynomial {
     let prompt = "Enter polynomial in the form: 4.2x^2 -2x +0.4";
     println!("{prompt}");
