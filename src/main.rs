@@ -1,11 +1,7 @@
 use application::{femtovg_init, handler::MyApplicationHandler};
 use grapher::equation::{Polynomial, PolynomialBuilder, Term};
 use regex::Regex;
-use std::{
-    env,
-    fmt::Display,
-    io::{self, Write},
-};
+use std::{env, io};
 use winit::event_loop::EventLoop;
 
 pub mod application;
@@ -75,7 +71,7 @@ fn parse_equation() -> Polynomial {
 
     let poly = Polynomial::new(terms);
 
-    println!("Equation: {}", poly);
+    println!("Parsed equation: {}", poly);
 
     poly
 }
@@ -120,6 +116,11 @@ fn main() {
     } else {
         vec![parse_equation()]
     };
+
+    println!("Graphing equations:");
+    for e in &equations {
+        println!("{e}");
+    }
 
     let event_loop = EventLoop::new().expect("failed to create event loop");
 

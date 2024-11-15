@@ -113,6 +113,6 @@ impl Display for Term {
             1 => String::from("x"),
             _ => format!("x^{}", self.power),
         };
-        write!(f, "{} {:4}{:3}", sign, self.c.abs(), x_power)
+        write!(f, "{} {}{}", sign, self.c.abs(), x_power)
     }
 }
