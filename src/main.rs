@@ -2,8 +2,8 @@ use application::{femtovg_init, handler::MyApplicationHandler, parser};
 use grapher::equation::{Polynomial, PolynomialBuilder, Term};
 use winit::event_loop::EventLoop;
 
-pub mod application;
-pub mod grapher;
+mod application;
+mod grapher;
 
 fn demo_equations() -> Vec<Polynomial> {
     let linear = PolynomialBuilder::new()
