@@ -12,20 +12,14 @@ pub fn parse_equation() -> Polynomial {
         .read_line(&mut input)
         .expect("Failed to read line");
 
-    println!("{input}");
-    println!("{:?}", input.chars());
-
     let polystring: String = input.split_whitespace().collect();
 
-    println!("{polystring}");
-
-    // requires no space between sign and term
-    let regex = Regex::new(r"((?:^|[+-])(?:\d+(?:\.\d+)?)?)(x\^?(\d+)?)?").unwrap();
+    let regex = Regex::new(r"([+-]?(?:\d+(?:\.\d+)?)?)(x\^?(\d+)?)?").unwrap();
+    // leads to an empty match at the very end
     let mut terms = Vec::new();
-    // + 4.2x^2 - 2x + 0.4 + 1x
-    for cap in regex.captures_iter(&polystring) {
-        println!("{:?}", cap);
 
+    for cap in regex.captures_iter(&polystring) {
+        // println!("{:?}", cap);
         let whole_term_opt = cap.get(0); // eg, -4.2x^2
         let coeff_opt = cap.get(1); // eg, -4.2
         let x_exponential_opt = cap.get(2); // eg, x^2
@@ -70,11 +64,9 @@ pub fn parse_equation() -> Polynomial {
 
         terms.push(Term::new(coeff, p));
     }
-
-    println!("Parsed terms: {:?}", terms);
+    // println!("Parsed terms: {:?}", terms);
 
     let poly = Polynomial::new(terms);
-
     println!("Parsed equation: {}", poly);
 
     poly
