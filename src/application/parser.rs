@@ -15,18 +15,22 @@ pub fn parse_equation() -> Polynomial {
         .expect("Failed to read line");
 
     // requires no space between sign and term
-    let regex = Regex::new(r"([+-]?(\d+(\.\d+)?)?)(x\^?(\d+)?)?").unwrap();
-
+    let regex = Regex::new(r"([+-]?(?:\d+(?:\.\d+)?)?)(x\^?(\d+)?)?").unwrap();
     let mut terms = Vec::new();
 
     for cap in regex.captures_iter(&polystring) {
-        // println!("{:?}", cap);
-        let whole_term = cap.get(0).unwrap().as_str();
+        println!("{:?}", cap);
+
+        let whole_term_opt = cap.get(0); // eg, -4.2x^2
+        let coeff_opt = cap.get(1); // eg, -4.2
+        let x_exponential_opt = cap.get(2); // eg, x^2
+        let power_opt = cap.get(3); // eg, 2
+
+        let whole_term = whole_term_opt.unwrap().as_str();
         if whole_term.is_empty() {
             continue;
         }
 
-        let coeff_opt = cap.get(1);
         let coeff = match coeff_opt {
             None => 1.,
             Some(coeff_match) => match coeff_match.as_str() {
@@ -39,11 +43,8 @@ pub fn parse_equation() -> Polynomial {
             },
         };
 
-        let power_term = cap.get(5);
-        let x_exp_term = cap.get(4);
-
-        let p = match power_term {
-            None => match x_exp_term {
+        let p = match power_opt {
+            None => match x_exponential_opt {
                 None => 0,
                 Some(x_exp_match) => {
                     if x_exp_match.as_str() == "x" {

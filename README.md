@@ -1,7 +1,8 @@
 # graph_rs
 
 #### TODO
-- make a UI/CLI
+- handle spaces in parsing
+- add tests for regex
 - reverse order - create equation from graph
 - use bezier curves
 - create benchmarks
