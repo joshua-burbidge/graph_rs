@@ -3,21 +3,26 @@ use std::{env, io};
 
 use crate::grapher::equation::{Polynomial, Term};
 
-// TODO allow space between sign and term
-
 pub fn parse_equation() -> Polynomial {
-    let prompt = "Enter polynomial in the form: 4.2x^2 -2x +0.4";
+    let prompt = "Enter polynomial in the form: 4.2x^2 - 2x + 0.4 (whitespace ignored)";
     println!("{prompt}");
-    let mut polystring = String::new();
+    let mut input = String::new();
 
     io::stdin()
-        .read_line(&mut polystring)
+        .read_line(&mut input)
         .expect("Failed to read line");
 
-    // requires no space between sign and term
-    let regex = Regex::new(r"([+-]?(?:\d+(?:\.\d+)?)?)(x\^?(\d+)?)?").unwrap();
-    let mut terms = Vec::new();
+    println!("{input}");
+    println!("{:?}", input.chars());
 
+    let polystring: String = input.split_whitespace().collect();
+
+    println!("{polystring}");
+
+    // requires no space between sign and term
+    let regex = Regex::new(r"((?:^|[+-])(?:\d+(?:\.\d+)?)?)(x\^?(\d+)?)?").unwrap();
+    let mut terms = Vec::new();
+    // + 4.2x^2 - 2x + 0.4 + 1x
     for cap in regex.captures_iter(&polystring) {
         println!("{:?}", cap);
 
