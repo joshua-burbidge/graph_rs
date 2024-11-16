@@ -4,7 +4,7 @@ use std::{env, io};
 use crate::grapher::equation::{Polynomial, Term};
 
 pub fn parse_equation() -> Polynomial {
-    let prompt = "Enter polynomial in the form: 4.2x^2 - 2x + 0.4 (whitespace ignored)";
+    let prompt = "Enter polynomial in the form: 4.2x^2 - 2x + 0.4 (whitespace ignored, exponents must be integers)";
     println!("{prompt}");
     let mut input = String::new();
 
