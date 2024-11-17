@@ -3,7 +3,7 @@ use std::{env, io};
 
 use crate::grapher::equation::{Polynomial, Term};
 
-pub fn parse_equation() -> Polynomial {
+pub fn input_equation() -> Polynomial {
     let prompt = "Enter polynomial in the form: 4.2x^2 - 2x + 0.4 (whitespace ignored, exponents must be integers)";
     println!("{prompt}");
     let mut input = String::new();
@@ -12,7 +12,11 @@ pub fn parse_equation() -> Polynomial {
         .read_line(&mut input)
         .expect("Failed to read line");
 
-    let polystring: String = input.split_whitespace().collect();
+    parse_equation(input)
+}
+
+fn parse_equation(equation_string: String) -> Polynomial {
+    let polystring: String = equation_string.split_whitespace().collect();
 
     let regex = Regex::new(r"([+-]?(?:\d+(?:\.\d+)?)?)(x\^?(\d+)?)?").unwrap();
     // leads to an empty match at the very end
@@ -83,7 +87,7 @@ pub fn parse_equations() -> Vec<Polynomial> {
     let mut equations: Vec<Polynomial> = Vec::new();
 
     while enter_another_equation {
-        let eq = parse_equation();
+        let eq = input_equation();
         equations.push(eq);
 
         println!("\nEntered equations:");
@@ -120,4 +124,75 @@ pub fn parse_equations() -> Vec<Polynomial> {
     }
 
     equations
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn normal_polynomial() {
+        let input = String::from("0.5x^6 +1.234x^7 - 4x^4 + 3x^2 +x - 1");
+        let expected = Polynomial::new(vec![
+            Term::new(0.5, 6),
+            Term::new(1.234, 7),
+            Term::new(-4., 4),
+            Term::new(3., 2),
+            Term::new(1., 1),
+            Term::new(-1., 0),
+        ]);
+
+        let result = parse_equation(input);
+
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn leading_sign_neg() {
+        let neg = String::from("-2.1x^3 - 1");
+        let expected = Polynomial::new(vec![Term::new(-2.1, 3), Term::new(-1., 0)]);
+
+        let result = parse_equation(neg);
+
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn leading_sign_pos() {
+        let pos = String::from("+1.3x^2 + 2");
+        let expected = Polynomial::new(vec![Term::new(1.3, 2), Term::new(2., 0)]);
+
+        let result = parse_equation(pos);
+
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn handles_whitespace() {
+        let input = String::from("   - \t  4.2x^3 +2x^2  - 3.7 ");
+        let expected = Polynomial::new(vec![
+            Term::new(-4.2, 3),
+            Term::new(2., 2),
+            Term::new(-3.7, 0),
+        ]);
+
+        let result = parse_equation(input);
+
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn no_whitespace() {
+        let input = String::from("5.2x^3-2x^2+1.9x-3");
+        let expected = Polynomial::new(vec![
+            Term::new(5.2, 3),
+            Term::new(-2., 2),
+            Term::new(1.9, 1),
+            Term::new(-3., 0),
+        ]);
+
+        let result = parse_equation(input);
+
+        assert_eq!(result, expected);
+    }
 }

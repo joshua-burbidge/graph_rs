@@ -1,6 +1,6 @@
 use std::fmt::{Debug, Display};
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, PartialEq)]
 pub struct Polynomial {
     terms: Vec<Term>,
 }
@@ -10,6 +10,8 @@ impl Polynomial {
         Polynomial { terms }
     }
 }
+// impl PartialEq for Polynomial
+// so that term order doesn't matter
 
 pub trait Calculate: Debug + Display {
     fn calc(&self, x: f32) -> f32;
@@ -89,7 +91,7 @@ impl PolynomialBuilder {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Term {
     power: i32,
     c: f32,
