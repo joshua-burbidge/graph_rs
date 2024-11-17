@@ -30,6 +30,7 @@ impl Calculate for Polynomial {
 
 impl Display for Polynomial {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "y = ").expect("failed to write");
         for item in self.terms.iter() {
             // Print each element
             write!(f, "{} ", item)?;

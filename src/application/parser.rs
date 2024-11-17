@@ -86,6 +86,12 @@ pub fn parse_equations() -> Vec<Polynomial> {
         let eq = parse_equation();
         equations.push(eq);
 
+        println!("\nEntered equations:");
+        for e in &equations {
+            println!("{e}");
+        }
+        println!();
+
         let eq_prompt = "[e] Enter another equation";
         let graph_prompt = "[g] Graph these equations";
 
