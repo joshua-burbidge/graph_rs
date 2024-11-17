@@ -30,7 +30,7 @@ pub fn init_canvas<T>(
 
     let window_attr = WindowAttributes::default()
         .with_inner_size(PhysicalSize::new(1000., 600.))
-        .with_title("Femotovg");
+        .with_title("graph_rs");
     let display_builder = DisplayBuilder::new().with_window_attributes(Some(window_attr));
 
     let (window, gl_config) = display_builder
