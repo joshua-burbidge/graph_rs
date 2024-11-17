@@ -37,7 +37,7 @@ fn main() {
     let equations = if parser::has_demo_arg() {
         demo_equations()
     } else {
-        vec![parser::parse_equation()]
+        parser::parse_equations()
     };
 
     println!("Graphing equations:");

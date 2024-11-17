@@ -77,3 +77,41 @@ pub fn has_demo_arg() -> bool {
 
     args.len() >= 2 && &args[1] == "--demo"
 }
+
+pub fn parse_equations() -> Vec<Polynomial> {
+    let mut enter_another_equation = true;
+    let mut equations: Vec<Polynomial> = Vec::new();
+
+    while enter_another_equation {
+        let eq = parse_equation();
+        equations.push(eq);
+
+        let eq_prompt = "[e] Enter another equation";
+        let graph_prompt = "[g] Graph these equations";
+
+        print!("{}\n{}\n", eq_prompt, graph_prompt);
+
+        let mut input = String::new();
+
+        io::stdin()
+            .read_line(&mut input)
+            .expect("Failed to read line");
+
+        let first_char = input.chars().next();
+
+        match first_char {
+            Some('e') => {
+                enter_another_equation = true;
+            }
+            Some('g') => {
+                enter_another_equation = false;
+            }
+            _ => {
+                println!("Invalid input. Try again.");
+                enter_another_equation = true;
+            }
+        };
+    }
+
+    equations
+}
