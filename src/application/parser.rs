@@ -1,9 +1,89 @@
 use regex::Regex;
 use std::{env, io};
 
-use crate::grapher::equation::{Polynomial, Term};
+use crate::{
+    demo_equations,
+    grapher::equation::{Polynomial, Term},
+};
 
-pub fn input_equation() -> Polynomial {
+pub fn has_demo_arg() -> bool {
+    let args: Vec<String> = env::args().collect();
+
+    args.len() >= 2 && &args[1] == "--demo"
+}
+
+pub fn get_input() -> Vec<Polynomial> {
+    let demo_or_custom = "[d] Graph a set of demo equations\n[e] Enter custom equations";
+    println!("{demo_or_custom}");
+    let mut demo_or_custom_input = String::new();
+
+    let mut demo_or_custom_loop = true;
+
+    while demo_or_custom_loop {
+        io::stdin()
+            .read_line(&mut demo_or_custom_input)
+            .expect("Failed to read line");
+        match demo_or_custom_input.chars().next() {
+            Some('d') => {
+                return demo_equations();
+            }
+            Some('e') => {
+                demo_or_custom_loop = false;
+            }
+            _ => {
+                demo_or_custom_loop = true;
+            }
+        };
+    }
+
+    get_custom_equations()
+}
+
+fn get_custom_equations() -> Vec<Polynomial> {
+    let mut enter_another_equation = true;
+    let mut equations: Vec<Polynomial> = Vec::new();
+
+    while enter_another_equation {
+        let eq = input_equation();
+        equations.push(eq);
+
+        println!("\nEntered equations:");
+        for e in &equations {
+            println!("{e}");
+        }
+        println!();
+
+        let eq_prompt = "[e] Enter another equation";
+        let graph_prompt = "[g] Graph these equations";
+
+        print!("{}\n{}\n", eq_prompt, graph_prompt);
+
+        let mut input = String::new();
+
+        io::stdin()
+            .read_line(&mut input)
+            .expect("Failed to read line");
+
+        let first_char = input.chars().next();
+
+        match first_char {
+            Some('e') => {
+                enter_another_equation = true;
+            }
+            Some('g') => {
+                enter_another_equation = false;
+            }
+            _ => {
+                println!("Invalid input. Try again.");
+                enter_another_equation = true;
+            }
+        };
+    }
+
+    equations
+}
+
+fn input_equation() -> Polynomial {
     let prompt = "Enter polynomial in the form: 4.2x^2 - 2x + 0.4 (whitespace ignored, exponents must be integers)";
     println!("{prompt}");
     let mut input = String::new();
@@ -74,56 +154,6 @@ fn parse_equation(equation_string: String) -> Polynomial {
     println!("Parsed equation: {}", poly);
 
     poly
-}
-
-pub fn has_demo_arg() -> bool {
-    let args: Vec<String> = env::args().collect();
-
-    args.len() >= 2 && &args[1] == "--demo"
-}
-
-pub fn parse_equations() -> Vec<Polynomial> {
-    let mut enter_another_equation = true;
-    let mut equations: Vec<Polynomial> = Vec::new();
-
-    while enter_another_equation {
-        let eq = input_equation();
-        equations.push(eq);
-
-        println!("\nEntered equations:");
-        for e in &equations {
-            println!("{e}");
-        }
-        println!();
-
-        let eq_prompt = "[e] Enter another equation";
-        let graph_prompt = "[g] Graph these equations";
-
-        print!("{}\n{}\n", eq_prompt, graph_prompt);
-
-        let mut input = String::new();
-
-        io::stdin()
-            .read_line(&mut input)
-            .expect("Failed to read line");
-
-        let first_char = input.chars().next();
-
-        match first_char {
-            Some('e') => {
-                enter_another_equation = true;
-            }
-            Some('g') => {
-                enter_another_equation = false;
-            }
-            _ => {
-                println!("Invalid input. Try again.");
-                enter_another_equation = true;
-            }
-        };
-    }
-
-    equations
 }
 
 #[cfg(test)]
