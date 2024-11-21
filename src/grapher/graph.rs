@@ -68,7 +68,7 @@ impl<'a> Graph<'a> {
             if x % 10 == 0 {
                 significant_ticks_path.move_to(start_px.0, start_px.1);
                 significant_ticks_path.line_to(end_px.0, end_px.1);
-            } else {
+            } else if self.scale > 5. {
                 ticks_path.move_to(start_px.0, start_px.1);
                 ticks_path.line_to(end_px.0, end_px.1);
             }
@@ -81,7 +81,7 @@ impl<'a> Graph<'a> {
             if y % 10 == 0 {
                 significant_ticks_path.move_to(start_px.0, start_px.1);
                 significant_ticks_path.line_to(end_px.0, end_px.1);
-            } else {
+            } else if self.scale > 5. {
                 ticks_path.move_to(start_px.0, start_px.1);
                 ticks_path.line_to(end_px.0, end_px.1);
             }

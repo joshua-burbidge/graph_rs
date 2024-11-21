@@ -23,4 +23,3 @@ cargo run
 - use bezier curves
 - create benchmarks
 - highlight points hovered
-- reduce tick marks when zoomed out
