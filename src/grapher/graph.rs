@@ -3,11 +3,6 @@ use winit::dpi::{PhysicalPosition, PhysicalSize};
 
 use super::equation::{Calculate, CouldBeLinear};
 
-enum _Axis {
-    X,
-    Y,
-}
-
 // graph should be responsible for all paths and pixel conversions
 // so that other structs can mathematical units
 pub struct Graph<'a> {
@@ -33,6 +28,11 @@ impl<'a> Graph<'a> {
     }
 
     pub fn init_graph(&mut self) {
+        self.draw_axes();
+        self.draw_tick_marks();
+    }
+
+    fn draw_axes(&mut self) {
         let mut axes = Path::new();
 
         let (min_x, max_x) = self.get_x_range();
@@ -50,14 +50,11 @@ impl<'a> Graph<'a> {
         axes.move_to(y_axis_start.0, y_axis_start.1);
         axes.line_to(y_axis_end.0, y_axis_end.1);
 
-        self.tick_marks();
-
         let axes_paint = Paint::color(Color::rgb(0, 255, 0)).with_line_width(3.);
-
         self.canvas.stroke_path(&axes, &axes_paint);
     }
 
-    fn tick_marks(&mut self) {
+    fn draw_tick_marks(&mut self) {
         let (min_x, max_x) = self.get_x_range();
         let (min_y, max_y) = self.get_y_range();
 
@@ -105,12 +102,10 @@ impl<'a> Graph<'a> {
     }
 
     // get x range in units, returns the first int greater than the screen size
-    // works if 0,0 is on screen
-    // also works if 0,0 is off screen but adds an extra point off screen
     fn get_x_range(&self) -> (i32, i32) {
         let (zero_x, _zero_y) = self.zero_zero_px();
 
-        let num_x_ticks_left = (zero_x / self.scale).ceil() as i32; // without + 1 the edge would be empty until more than half is showing
+        let num_x_ticks_left = (zero_x / self.scale).ceil() as i32; // without ceil the edge would be empty until more than half is showing
         let num_x_ticks_right = ((self.size.width as f32 - zero_x) / self.scale).ceil() as i32;
         // when it would round down we need the +1, when it would round up we don't
 
@@ -146,7 +141,7 @@ impl<'a> Graph<'a> {
 
         let mut eq_path = Path::new();
 
-        // works because it's linear, general case would be "in min_x..(max_x + 1)"
+        // linear - only need two points
         for i in [min_x, max_x] {
             let point = Point {
                 x: i as f32,
