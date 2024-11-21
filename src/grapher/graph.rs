@@ -172,7 +172,11 @@ impl<'a> Graph<'a> {
         }
         let (min_x, max_x) = self.get_x_range();
 
-        let capped_points_per_unit = if self.scale > 200. { 200. } else { self.scale };
+        let capped_points_per_unit = if self.scale > 5000. {
+            5000.
+        } else {
+            self.scale
+        };
         let ppu_rounded = capped_points_per_unit.round() as i32;
         // set ppu based on scale so the performance is ok for small scale
         // cap so peformance doesn't degrade at large scale where there is more off-screen graph
