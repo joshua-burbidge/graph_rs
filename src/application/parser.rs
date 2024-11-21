@@ -15,11 +15,11 @@ pub fn has_demo_arg() -> bool {
 pub fn get_input() -> Vec<Polynomial> {
     let demo_or_custom = "[d] Graph a set of demo equations\n[e] Enter custom equations";
     println!("{demo_or_custom}");
-    let mut demo_or_custom_input = String::new();
 
     let mut demo_or_custom_loop = true;
 
     while demo_or_custom_loop {
+        let mut demo_or_custom_input = String::new();
         io::stdin()
             .read_line(&mut demo_or_custom_input)
             .expect("Failed to read line");
@@ -31,6 +31,7 @@ pub fn get_input() -> Vec<Polynomial> {
                 demo_or_custom_loop = false;
             }
             _ => {
+                println!("Invalid input. Try again.");
                 demo_or_custom_loop = true;
             }
         };
