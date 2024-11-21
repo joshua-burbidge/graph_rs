@@ -3,13 +3,45 @@ use std::fmt::{Debug, Display};
 #[derive(Default, Debug, PartialEq)]
 pub struct Polynomial {
     terms: Vec<Term>,
+    precision: u32,
 }
 
 impl Polynomial {
     pub fn new(terms: Vec<Term>) -> Self {
-        Polynomial { terms }
+        let default_precision = 4;
+
+        Polynomial {
+            terms,
+            precision: default_precision,
+        }
+    }
+
+    pub fn simplify(&self) -> Self {
+        let mut simplified_terms = Vec::<Term>::new();
+
+        for term in &self.terms {
+            // if the term for this power has already been collected, continue
+            if simplified_terms
+                .iter()
+                .find(|t| t.power == term.power)
+                .is_some()
+            {
+                continue;
+            }
+            let this_power_terms = self.terms.iter().filter(|t| t.power == term.power);
+            let combined_c = this_power_terms.fold(0., |acc: f32, t: &Term| acc + t.c);
+
+            let rounding_factor = 10_i32.pow(self.precision) as f32;
+            let rounded_c = (combined_c * rounding_factor).round() / rounding_factor;
+            simplified_terms.push(Term::new(rounded_c, term.power));
+        }
+
+        Polynomial::new(simplified_terms)
     }
 }
+
+// TODO test this
+
 // impl PartialEq for Polynomial
 // so that term order doesn't matter
 
@@ -72,7 +104,7 @@ impl PolynomialBuilder {
         self
     }
     pub fn build(self) -> Polynomial {
-        Polynomial { terms: self.terms }
+        Polynomial::new(self.terms).simplify()
     }
     pub fn plus_const(self, coeff: f32) -> Self {
         self.add_term(Term { c: coeff, power: 0 })

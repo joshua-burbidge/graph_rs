@@ -30,7 +30,17 @@ fn demo_equations() -> Vec<Polynomial> {
         .plus_x_squared_times(3.)
         .plus_const(-1.)
         .build();
-    vec![linear, quad, cubic, poly]
+    let s = PolynomialBuilder::new()
+        .plus_x_4th_times(1.)
+        .plus_x_4th_times(-1.5)
+        .plus_x_4th_times(-2.)
+        .plus_x_cubed_times(1.)
+        .plus_x_cubed_times(2.)
+        .plus_const(99.9)
+        .plus_const(-99.8)
+        .build();
+
+    vec![linear, quad, cubic, poly, s]
 }
 
 fn main() {
@@ -43,6 +53,8 @@ fn main() {
     println!("Graphing equations:");
     for e in &equations {
         println!("{e}");
+        // println!("{}", e.simplify());
+        // println!();
     }
 
     let event_loop = EventLoop::new().expect("failed to create event loop");
