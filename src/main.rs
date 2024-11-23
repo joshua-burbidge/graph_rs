@@ -40,7 +40,16 @@ fn demo_equations() -> Vec<Polynomial> {
         .plus_const(-99.8)
         .build();
 
-    vec![linear, quad, cubic, poly, s]
+    let vertex = PolynomialBuilder::new()
+        .plus_x_squared_times(-2.)
+        .plus_x_times(3.)
+        .plus_const(2.)
+        .build();
+
+    let quad_bez = Polynomial::new(vec![Term::new(1., 2), Term::new(1., 0)]);
+
+    // vec![linear, quad, cubic, poly, s]
+    vec![quad_bez]
 }
 
 fn main() {
@@ -53,8 +62,6 @@ fn main() {
     println!("Graphing equations:");
     for e in &equations {
         println!("{e}");
-        // println!("{}", e.simplify());
-        // println!();
     }
 
     let event_loop = EventLoop::new().expect("failed to create event loop");

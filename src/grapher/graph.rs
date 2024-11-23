@@ -1,7 +1,7 @@
 use femtovg::{renderer::OpenGl, Canvas, Color, Paint, Path};
 use winit::dpi::{PhysicalPosition, PhysicalSize};
 
-use super::equation::{Calculate, CouldBeLinear};
+use super::equation::{Calculate, CouldBeLinear, Point, Polynomial};
 
 // graph should be responsible for all paths and pixel conversions
 // so that other structs can mathematical units
@@ -158,6 +158,43 @@ impl<'a> Graph<'a> {
 
         let red_paint = Paint::color(Color::rgb(255, 0, 0));
         self.canvas.stroke_path(&eq_path, &red_paint);
+    }
+
+    pub fn graph_quad(&mut self, equation: &Polynomial) {
+        let min_x = -5.;
+        let p0 = Point {
+            x: min_x,
+            y: equation.calc(min_x),
+        };
+        let max_x = 5.;
+        let p2 = Point {
+            x: max_x,
+            y: equation.calc(max_x),
+        };
+
+        let mid_x = (min_x + max_x) / 2.;
+        let mid_y = equation.calc(mid_x);
+        let p1_x = mid_x;
+        let p1_y = 2. * mid_y - 0.5 * (p0.y + p2.y);
+        let p1 = Point { x: p1_x, y: p1_y };
+
+        let p0_px = self.convert_point_to_px(p0);
+        let p1_px = self.convert_point_to_px(p1);
+        let p2_px = self.convert_point_to_px(p2);
+
+        let mut path = Path::new();
+
+        path.move_to(p0_px.0, p0_px.1);
+        path.quad_to(p1_px.0, p1_px.1, p2_px.0, p2_px.1);
+
+        let paint = Paint::color(Color::rgbf(0., 0., 1.));
+        let mut points = Path::new();
+        points.circle(p0_px.0, p0_px.1, 5.);
+        points.circle(p1_px.0, p1_px.1, 5.);
+        points.circle(p2_px.0, p2_px.1, 5.);
+
+        self.canvas.stroke_path(&path, &paint);
+        self.canvas.fill_path(&points, &paint);
     }
 
     pub fn graph_poly<T: Calculate + CouldBeLinear>(&mut self, equation: &T) {
