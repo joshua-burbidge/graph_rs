@@ -1,5 +1,19 @@
 use std::fmt::{Debug, Display};
 
+pub struct Point {
+    pub x: f32,
+    pub y: f32,
+}
+
+impl Point {
+    pub fn from_ints(x: i32, y: i32) -> Self {
+        Point {
+            x: x as f32,
+            y: y as f32,
+        }
+    }
+}
+
 #[derive(Default, Debug, PartialEq)]
 pub struct Polynomial {
     terms: Vec<Term>,
@@ -37,6 +51,24 @@ impl Polynomial {
         }
 
         Polynomial::new(simplified_terms)
+    }
+
+    fn _find_term(&self, power: i32) -> Term {
+        let term_opt = self.terms.iter().find(|t| t.power == power);
+        match term_opt {
+            None => Term::new(0., power),
+            Some(term) => Term::new(term.c, term.power),
+        }
+    }
+
+    pub fn _find_vertex(&self) -> Point {
+        let a = self._find_term(2).c;
+        let b = self._find_term(1).c;
+
+        let v_x = -b / (2. * a);
+        let v_y = self.calc(v_x);
+
+        Point { x: v_x, y: v_y }
     }
 }
 

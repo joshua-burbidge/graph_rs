@@ -200,17 +200,3 @@ impl<'a> Graph<'a> {
         self.canvas.stroke_path(&eq_path, &red_paint);
     }
 }
-
-struct Point {
-    x: f32,
-    y: f32,
-}
-
-impl Point {
-    fn from_ints(x: i32, y: i32) -> Self {
-        Point {
-            x: x as f32,
-            y: y as f32,
-        }
-    }
-}
