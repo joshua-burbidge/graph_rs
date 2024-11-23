@@ -178,7 +178,7 @@ fn render_canvas(
     graph1.init_graph();
 
     for equation in equations {
-        graph1.graph_poly(equation);
+        graph1.graph_equation(equation);
     }
 }
 

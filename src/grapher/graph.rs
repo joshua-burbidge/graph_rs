@@ -199,14 +199,7 @@ impl<'a> Graph<'a> {
         self.canvas.fill_path(&points, &paint);
     }
 
-    pub fn graph_poly<T: Calculate + CouldBeLinear + CouldBeQuad>(&mut self, equation: &T) {
-        if equation.is_linear() {
-            self.graph_linear(equation);
-            return;
-        } else if equation.is_quadratic() {
-            self.graph_quad(equation);
-            return;
-        }
+    fn graph_poly<T: Calculate>(&mut self, equation: &T) {
         let (min_x, max_x) = self.get_x_range();
 
         let capped_points_per_unit = if self.scale > 5000. {
@@ -240,5 +233,17 @@ impl<'a> Graph<'a> {
 
         let red_paint = Paint::color(Color::rgb(255, 0, 0));
         self.canvas.stroke_path(&eq_path, &red_paint);
+    }
+
+    pub fn graph_equation<T: Calculate + CouldBeLinear + CouldBeQuad>(&mut self, equation: &T) {
+        if equation.is_linear() {
+            self.graph_linear(equation);
+            return;
+        } else if equation.is_quadratic() {
+            self.graph_quad(equation);
+            return;
+        } else {
+            self.graph_poly(equation);
+        }
     }
 }
