@@ -179,7 +179,6 @@ fn render_canvas(
 
     for equation in equations {
         graph1.graph_poly(equation);
-        graph1.graph_quad(equation);
     }
 }
 

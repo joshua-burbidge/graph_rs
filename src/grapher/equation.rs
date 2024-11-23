@@ -73,8 +73,6 @@ impl Polynomial {
     }
 }
 
-// TODO test this
-
 // impl PartialEq for Polynomial
 // so that term order doesn't matter
 
@@ -114,6 +112,22 @@ impl CouldBeLinear for Polynomial {
     fn is_linear(&self) -> bool {
         for term in &self.terms {
             if term.power > 1 {
+                return false;
+            }
+        }
+
+        true
+    }
+}
+
+pub trait CouldBeQuad {
+    fn is_quadratic(&self) -> bool;
+}
+
+impl CouldBeQuad for Polynomial {
+    fn is_quadratic(&self) -> bool {
+        for term in &self.terms {
+            if term.power > 2 {
                 return false;
             }
         }

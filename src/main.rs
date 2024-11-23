@@ -13,7 +13,12 @@ fn demo_equations() -> Vec<Polynomial> {
 
     let quad: Polynomial = PolynomialBuilder::new()
         .plus_x_squared_times(0.5)
-        .plus_x_times(0.)
+        .plus_x_times(1.)
+        .plus_const(-1.)
+        .build();
+    let neg_quad: Polynomial = PolynomialBuilder::new()
+        .plus_x_squared_times(-0.5)
+        .plus_x_times(1.)
         .plus_const(-1.)
         .build();
 
@@ -24,7 +29,7 @@ fn demo_equations() -> Vec<Polynomial> {
         .plus_const(0.)
         .build();
 
-    let poly: Polynomial = PolynomialBuilder::new()
+    let _poly: Polynomial = PolynomialBuilder::new()
         .add_term(Term::x_to_the(6).times(0.5))
         .plus_x_4th_times(-4.)
         .plus_x_squared_times(3.)
@@ -40,16 +45,7 @@ fn demo_equations() -> Vec<Polynomial> {
         .plus_const(-99.8)
         .build();
 
-    let vertex = PolynomialBuilder::new()
-        .plus_x_squared_times(-2.)
-        .plus_x_times(3.)
-        .plus_const(2.)
-        .build();
-
-    let quad_bez = Polynomial::new(vec![Term::new(1., 2), Term::new(1., 0)]);
-
-    // vec![linear, quad, cubic, poly, s]
-    vec![quad_bez]
+    vec![linear, quad, neg_quad, cubic, s]
 }
 
 fn main() {

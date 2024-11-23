@@ -1,7 +1,7 @@
 use femtovg::{renderer::OpenGl, Canvas, Color, Paint, Path};
 use winit::dpi::{PhysicalPosition, PhysicalSize};
 
-use super::equation::{Calculate, CouldBeLinear, Point, Polynomial};
+use super::equation::{Calculate, CouldBeLinear, CouldBeQuad, Point};
 
 // graph should be responsible for all paths and pixel conversions
 // so that other structs can mathematical units
@@ -160,7 +160,7 @@ impl<'a> Graph<'a> {
         self.canvas.stroke_path(&eq_path, &red_paint);
     }
 
-    pub fn graph_quad(&mut self, equation: &Polynomial) {
+    fn graph_quad<T: Calculate>(&mut self, equation: &T) {
         let domain = self.get_x_range();
         let min_x = domain.0 as f32;
         let max_x = domain.1 as f32;
@@ -199,9 +199,12 @@ impl<'a> Graph<'a> {
         self.canvas.fill_path(&points, &paint);
     }
 
-    pub fn graph_poly<T: Calculate + CouldBeLinear>(&mut self, equation: &T) {
+    pub fn graph_poly<T: Calculate + CouldBeLinear + CouldBeQuad>(&mut self, equation: &T) {
         if equation.is_linear() {
             self.graph_linear(equation);
+            return;
+        } else if equation.is_quadratic() {
+            self.graph_quad(equation);
             return;
         }
         let (min_x, max_x) = self.get_x_range();
