@@ -22,3 +22,4 @@ cargo run
 - reverse order - create equation from graph
 - use bezier curves
 - highlight points hovered
+- don't always graph full x domain if it's off-screen in the y

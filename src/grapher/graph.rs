@@ -161,12 +161,14 @@ impl<'a> Graph<'a> {
     }
 
     pub fn graph_quad(&mut self, equation: &Polynomial) {
-        let min_x = -5.;
+        let domain = self.get_x_range();
+        let min_x = domain.0 as f32;
+        let max_x = domain.1 as f32;
+
         let p0 = Point {
             x: min_x,
             y: equation.calc(min_x),
         };
-        let max_x = 5.;
         let p2 = Point {
             x: max_x,
             y: equation.calc(max_x),
