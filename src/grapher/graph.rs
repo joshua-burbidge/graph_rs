@@ -136,6 +136,7 @@ impl<'a> Graph<'a> {
         (position_x, position_y)
     }
 
+    // graph linear function using start and end points
     fn graph_linear<T: Calculate>(&mut self, equation: &T) {
         let (min_x, max_x) = self.get_x_range();
 
@@ -160,6 +161,8 @@ impl<'a> Graph<'a> {
         self.canvas.stroke_path(&eq_path, &red_paint);
     }
 
+    // graphs a quadratic function by converting the function into a quadratic bezier curve
+    // p0 = starting point, p2 = ending point, p1 = (midx, 2*midy - (p0y+p2y)/2)
     fn graph_quad<T: Calculate>(&mut self, equation: &T) {
         let domain = self.get_x_range();
         let min_x = domain.0 as f32;
@@ -199,6 +202,7 @@ impl<'a> Graph<'a> {
         self.canvas.fill_path(&points, &paint);
     }
 
+    // graph polynomial of arbitrary degree using linear interpolation
     fn graph_poly<T: Calculate>(&mut self, equation: &T) {
         let (min_x, max_x) = self.get_x_range();
 
