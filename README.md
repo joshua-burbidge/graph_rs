@@ -14,6 +14,7 @@ cargo run
 ```
 - exponents must be integers
 
+![graph_rs_2](https://github.com/user-attachments/assets/7859fb34-b5bb-42c8-8ea6-66cfb95e900d)
 
 
 -----------------------
