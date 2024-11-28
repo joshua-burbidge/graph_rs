@@ -3,7 +3,7 @@ use std::{env, io};
 
 use crate::{
     demo_equations,
-    grapher::equation::{Polynomial, Term},
+    grapher::equation::{Equation, Polynomial, Term},
 };
 
 pub fn has_demo_arg() -> bool {
@@ -12,7 +12,7 @@ pub fn has_demo_arg() -> bool {
     args.len() >= 2 && &args[1] == "--demo"
 }
 
-pub fn get_input() -> Vec<Polynomial> {
+pub fn get_input() -> Vec<Equation> {
     let demo_or_custom = "[d] Graph a set of demo equations\n[e] Enter custom equations";
     println!("{demo_or_custom}");
 
@@ -40,9 +40,9 @@ pub fn get_input() -> Vec<Polynomial> {
     get_custom_equations()
 }
 
-fn get_custom_equations() -> Vec<Polynomial> {
+fn get_custom_equations() -> Vec<Equation> {
     let mut enter_another_equation = true;
-    let mut equations: Vec<Polynomial> = Vec::new();
+    let mut equations: Vec<Equation> = Vec::new();
 
     while enter_another_equation {
         let eq = input_equation();
@@ -84,7 +84,7 @@ fn get_custom_equations() -> Vec<Polynomial> {
     equations
 }
 
-fn input_equation() -> Polynomial {
+fn input_equation() -> Equation {
     let prompt = "Enter polynomial in the form: 4.2x^2 - 2x + 0.4 (whitespace ignored, exponents must be integers)";
     println!("{prompt}");
     let mut input = String::new();

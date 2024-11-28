@@ -1,6 +1,26 @@
 use std::fmt::{Debug, Display};
 
 #[derive(Debug)]
+pub enum Equation {
+    Polynomial { terms: Vec<Term> },
+    Quadratic { a: f32, b: f32, c: f32 },
+    Linear { a: f32, b: f32 },
+}
+
+fn some() {
+    let one = Equation::Linear { a: 1., b: 2. };
+
+    let mut v: Vec<Equation> = Vec::new();
+
+    v.push(one);
+    v.push(Equation::Quadratic {
+        a: 1.,
+        b: 2.,
+        c: 3.,
+    })
+}
+
+#[derive(Debug)]
 pub struct Point {
     pub x: f32,
     pub y: f32,
@@ -76,7 +96,7 @@ impl Polynomial {
 // impl PartialEq for Polynomial
 // so that term order doesn't matter
 
-pub trait Calculate: Debug + Display {
+pub trait Calculate: Debug {
     fn calc(&self, x: f32) -> f32;
 }
 
@@ -90,6 +110,25 @@ impl Calculate for Polynomial {
         }
 
         sum
+    }
+}
+
+impl Calculate for Equation {
+    fn calc(&self, x: f32) -> f32 {
+        match self {
+            Equation::Linear { a, b } => a * x + b,
+            Equation::Quadratic { a, b, c } => a * x.powi(2) + b * x + c,
+            Equation::Polynomial { terms } => {
+                let mut sum = 0.;
+
+                for term in terms {
+                    let term_value = term.c * x.powi(term.power);
+                    sum += term_value;
+                }
+
+                sum
+            }
+        }
     }
 }
 
@@ -146,12 +185,80 @@ impl PolynomialBuilder {
             terms: Vec::<Term>::new(),
         }
     }
+    fn is_linear(&self) -> bool {
+        for term in &self.terms {
+            if term.power > 1 {
+                return false;
+            }
+        }
+
+        true
+    }
+    fn find_max_power(&self) -> i32 {
+        let mut max = 0;
+
+        for term in &self.terms {
+            if term.power > max {
+                max = term.power
+            }
+        }
+        max
+    }
+
+    fn find_term(&self, power: i32) -> Term {
+        let term_opt = self.terms.iter().find(|t| t.power == power);
+        match term_opt {
+            None => Term::new(0., power),
+            Some(term) => Term::new(term.c, term.power),
+        }
+    }
+    fn simplify(&self) -> Vec<Term> {
+        let mut simplified_terms = Vec::<Term>::new();
+
+        for term in &self.terms {
+            // if the term for this power has already been collected, continue
+            if simplified_terms
+                .iter()
+                .find(|t| t.power == term.power)
+                .is_some()
+            {
+                continue;
+            }
+            let this_power_terms = self.terms.iter().filter(|t| t.power == term.power);
+            let combined_c = this_power_terms.fold(0., |acc: f32, t: &Term| acc + t.c);
+
+            let rounding_factor = 10_i32.pow(4) as f32;
+            let rounded_c = (combined_c * rounding_factor).round() / rounding_factor;
+            simplified_terms.push(Term::new(rounded_c, term.power));
+        }
+
+        // Polynomial::new(simplified_terms)
+        simplified_terms
+    }
     pub fn add_term(mut self, term: Term) -> Self {
         self.terms.push(term);
         self
     }
-    pub fn build(self) -> Polynomial {
-        Polynomial::new(self.terms).simplify()
+    pub fn build(self) -> Equation {
+        // Polynomial::new(self.terms).simplify()
+        let simplified_terms = self.simplify();
+
+        let max_power = self.find_max_power();
+
+        match max_power {
+            1 => Equation::Linear {
+                a: self.find_term(1).c,
+                b: self.find_term(0).c,
+            },
+            2 => Equation::Quadratic {
+                a: self.find_term(2).c,
+                b: self.find_term(1).c,
+                c: self.find_term(0).c,
+            },
+            _ => Equation::Polynomial {
+                terms: simplified_terms,
+            },
+        }
     }
     pub fn plus_const(self, coeff: f32) -> Self {
         self.add_term(Term { c: coeff, power: 0 })

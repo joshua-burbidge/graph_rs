@@ -20,6 +20,9 @@ cargo run
 
 #### TODO
 - reverse order - create equation from graph
-- use bezier curves
+- use cubic bezier for cubics
+- use multiple cubic beziers for higher-order
 - highlight points hovered
 - don't always graph full x domain if it's off-screen in the y
+
+trying to use enum

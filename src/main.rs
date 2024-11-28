@@ -1,35 +1,35 @@
 use application::{femtovg_init, handler::MyApplicationHandler, parser};
-use grapher::equation::{Polynomial, PolynomialBuilder, Term};
+use grapher::equation::{Equation, Polynomial, PolynomialBuilder, Term};
 use winit::event_loop::EventLoop;
 
 mod application;
 mod grapher;
 
-fn demo_equations() -> Vec<Polynomial> {
+fn demo_equations() -> Vec<Equation> {
     let linear = PolynomialBuilder::new()
         .plus_x_times(0.5)
         .plus_const(1.)
         .build();
 
-    let quad: Polynomial = PolynomialBuilder::new()
+    let quad = PolynomialBuilder::new()
         .plus_x_squared_times(0.5)
         .plus_x_times(1.)
         .plus_const(-1.)
         .build();
-    let neg_quad: Polynomial = PolynomialBuilder::new()
+    let neg_quad = PolynomialBuilder::new()
         .plus_x_squared_times(-0.5)
         .plus_x_times(1.)
         .plus_const(-1.)
         .build();
 
-    let cubic: Polynomial = PolynomialBuilder::new()
+    let cubic = PolynomialBuilder::new()
         .plus_x_cubed_times(0.01)
         .plus_x_squared_times(-0.2)
         .plus_x_times(1.)
         .plus_const(0.)
         .build();
 
-    let _poly: Polynomial = PolynomialBuilder::new()
+    let _poly = PolynomialBuilder::new()
         .add_term(Term::x_to_the(6).times(0.5))
         .plus_x_4th_times(-4.)
         .plus_x_squared_times(3.)
