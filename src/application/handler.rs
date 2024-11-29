@@ -81,28 +81,34 @@ impl ApplicationHandler for MyApplicationHandler {
             // each scale increment means one more pixel per unit away from 0,0
             // (scale_change * units from target to 0,0) = offset change
             // (scale_change * offset / current scale) = offset change
-            WindowEvent::MouseWheel { delta, .. } => match delta {
-                MouseScrollDelta::LineDelta(_x_delta, y_delta) => {
-                    let scale_increment = y_delta * 0.2; // adjust zoom speed
-
-                    // log and exp so that the zoom speed feels the same when large and small
-                    let new_scale = (self.scale.ln() + scale_increment).exp();
-
-                    if new_scale > 1. {
-                        let scale_change = new_scale - self.scale;
-                        let offset_change_x = scale_change * self.offset.x / self.scale;
-                        let offset_change_y = scale_change * self.offset.y / self.scale;
-
-                        self.offset = PhysicalPosition::new(
-                            self.offset.x + offset_change_x,
-                            self.offset.y + offset_change_y,
-                        );
-                        self.scale = new_scale;
-                        self.window.request_redraw();
+            WindowEvent::MouseWheel { delta, .. } => {
+                // println!("{:?}", delta);
+                let scale_increment = match delta {
+                    MouseScrollDelta::LineDelta(_x_delta, y_delta) => {
+                        let scale_increment = y_delta * 0.2; // adjust zoom speed
+                        scale_increment
                     }
+                    MouseScrollDelta::PixelDelta(delta_position) => {
+                        let scale_increment = (delta_position.y * 0.01) as f32;
+                        scale_increment
+                    }
+                };
+                // log and exp so that the zoom speed feels the same when large and small
+                let new_scale = (self.scale.ln() + scale_increment).exp();
+
+                if new_scale > 1. {
+                    let scale_change = new_scale - self.scale;
+                    let offset_change_x = scale_change * self.offset.x / self.scale;
+                    let offset_change_y = scale_change * self.offset.y / self.scale;
+
+                    self.offset = PhysicalPosition::new(
+                        self.offset.x + offset_change_x,
+                        self.offset.y + offset_change_y,
+                    );
+                    self.scale = new_scale;
+                    self.window.request_redraw();
                 }
-                _ => {}
-            },
+            }
             WindowEvent::MouseInput { state, .. } => match state {
                 ElementState::Pressed => {
                     self.dragging = true;
@@ -148,8 +154,8 @@ impl ApplicationHandler for MyApplicationHandler {
                     &self.equations,
                 );
             }
-            // _ => println!("{:?}", event),
-            _ => {}
+            _ => println!("{:?}", event),
+            // _ => {}
         }
     }
 
