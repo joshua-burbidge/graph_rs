@@ -123,8 +123,9 @@ fn init_native<T>(
 #[cfg(target_arch = "wasm32")]
 fn init_wasm<T>(event_loop: &EventLoop<T>) -> (Canvas<OpenGl>, Window) {
     use wasm_bindgen::JsCast;
+    use winit::platform::web::WindowAttributesExtWebSys;
 
-    let canvas = web_sys::window()
+    let html_canvas = web_sys::window()
         .unwrap()
         .document()
         .unwrap()
@@ -133,17 +134,12 @@ fn init_wasm<T>(event_loop: &EventLoop<T>) -> (Canvas<OpenGl>, Window) {
         .dyn_into::<web_sys::HtmlCanvasElement>()
         .unwrap();
 
-    use winit::platform::web::WindowAttributesExtWebSys;
+    let renderer = OpenGl::new_from_html_canvas(&html_canvas).expect("Cannot create renderer");
 
-    let renderer = OpenGl::new_from_html_canvas(&canvas).expect("Cannot create renderer");
-
-    let window_attrs = Window::default_attributes().with_canvas(Some(canvas));
+    let window_attrs = Window::default_attributes().with_canvas(Some(html_canvas));
+    #[allow(deprecated)]
     let window = event_loop.create_window(window_attrs).unwrap();
-
-    // let window = WindowBuilder::new()
-    //     .with_canvas(Some(canvas))
-    //     .build(&event_loop)
-    //     .unwrap();
+    // could maybe call these init functions from the resume handler, then event loop would be active
 
     let canvas = Canvas::new(renderer).expect("Cannot create canvas");
 
