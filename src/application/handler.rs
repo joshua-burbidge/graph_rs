@@ -1,13 +1,16 @@
+#[cfg(not(target_arch = "wasm32"))]
+mod non_wasm_imports {
+    pub use glutin::{
+        context::PossiblyCurrentContext,
+        prelude::*,
+        surface::{Surface, WindowSurface},
+    };
+}
+#[cfg(not(target_arch = "wasm32"))]
+use non_wasm_imports::*;
+
 use femtovg::renderer::OpenGl;
 use femtovg::{Canvas, Color};
-// use glutin::context::PossiblyCurrentContext;
-// use glutin::surface::Surface;
-#[cfg(not(target_arch = "wasm32"))]
-use glutin::{
-    context::PossiblyCurrentContext,
-    prelude::*,
-    surface::{Surface, WindowSurface},
-};
 use winit::application::ApplicationHandler;
 use winit::dpi::PhysicalPosition;
 use winit::event::{ElementState, MouseScrollDelta, WindowEvent};

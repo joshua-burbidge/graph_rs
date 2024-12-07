@@ -1,29 +1,28 @@
-use std::num::NonZeroU32;
+#[cfg(not(target_arch = "wasm32"))]
+mod non_wasm_imports {
+    pub use glutin::{
+        config::ConfigTemplateBuilder,
+        context::{ContextAttributesBuilder, PossiblyCurrentContext},
+        display::GetGlDisplay,
+        prelude::*,
+        surface::{Surface, SurfaceAttributesBuilder, WindowSurface},
+    };
+    pub use glutin_winit::DisplayBuilder;
+    #[allow(deprecated)]
+    pub use raw_window_handle::HasRawWindowHandle;
+    pub use std::num::NonZeroU32;
+    pub use winit::{dpi::PhysicalSize, window::WindowAttributes};
+}
+#[cfg(not(target_arch = "wasm32"))]
+use non_wasm_imports::*;
 
 use femtovg::renderer::OpenGl;
 use femtovg::Canvas;
-// use glutin::context::PossiblyCurrentContext;
-// use glutin::surface::Surface;
-#[cfg(not(target_arch = "wasm32"))]
-use glutin::{
-    config::ConfigTemplateBuilder,
-    context::{ContextAttributesBuilder, PossiblyCurrentContext},
-    display::GetGlDisplay,
-    prelude::*,
-    surface::{Surface, SurfaceAttributesBuilder, WindowSurface},
-};
-#[cfg(not(target_arch = "wasm32"))]
-use glutin_winit::DisplayBuilder;
-#[allow(deprecated)]
-// #[cfg(not(target_arch = "wasm32"))]
-use raw_window_handle::HasRawWindowHandle;
 use winit::event_loop::EventLoop;
-use winit::window::WindowAttributes;
-use winit::{dpi::PhysicalSize, window::Window};
-
-use crate::grapher::equation::Polynomial;
+use winit::window::Window;
 
 use super::handler::MyApplicationHandler;
+use crate::grapher::equation::Polynomial;
 
 pub fn init_canvas<T>(
     event_loop: &EventLoop<T>,
