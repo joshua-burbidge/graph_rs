@@ -1,5 +1,5 @@
 use application::{femtovg_init, handler::MyApplicationHandler, parser};
-use grapher::equation::{Polynomial, PolynomialBuilder, Term};
+use grapher::equation::{self, Polynomial, PolynomialBuilder, Term};
 use winit::event_loop::EventLoop;
 
 mod application;
@@ -48,8 +48,21 @@ fn demo_equations() -> Vec<Polynomial> {
     vec![linear, quad, neg_quad, cubic, s]
 }
 
+fn is_wasm() -> bool {
+    #[cfg(target_arch = "wasm32")]
+    {
+        web_sys::console::log_1(&format!("Using wasm").into());
+        true
+    }
+
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        false
+    }
+}
+
 fn main() {
-    let equations = if parser::has_demo_arg() {
+    let equations = if is_wasm() || parser::has_demo_arg() {
         demo_equations()
     } else {
         parser::get_input()
