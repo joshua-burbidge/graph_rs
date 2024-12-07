@@ -1,8 +1,13 @@
 use femtovg::renderer::OpenGl;
 use femtovg::{Canvas, Color};
-use glutin::context::PossiblyCurrentContext;
-use glutin::surface::Surface;
-use glutin::{prelude::*, surface::WindowSurface};
+// use glutin::context::PossiblyCurrentContext;
+// use glutin::surface::Surface;
+#[cfg(not(target_arch = "wasm32"))]
+use glutin::{
+    context::PossiblyCurrentContext,
+    prelude::*,
+    surface::{Surface, WindowSurface},
+};
 use winit::application::ApplicationHandler;
 use winit::dpi::PhysicalPosition;
 use winit::event::{ElementState, MouseScrollDelta, WindowEvent};
@@ -21,7 +26,9 @@ pub struct MyApplicationHandler {
     previous_position: Option<PhysicalPosition<f32>>,
     offset: PhysicalPosition<f32>,
     window: Window,
+    #[cfg(not(target_arch = "wasm32"))]
     context: PossiblyCurrentContext,
+    #[cfg(not(target_arch = "wasm32"))]
     surface: Surface<WindowSurface>,
     canvas: Canvas<OpenGl>,
     equations: Vec<Polynomial>,
@@ -30,8 +37,8 @@ pub struct MyApplicationHandler {
 impl MyApplicationHandler {
     pub fn new(
         window: Window,
-        context: PossiblyCurrentContext,
-        surface: Surface<WindowSurface>,
+        #[cfg(not(target_arch = "wasm32"))] context: PossiblyCurrentContext,
+        #[cfg(not(target_arch = "wasm32"))] surface: Surface<WindowSurface>,
         canvas: Canvas<OpenGl>,
         scale: f32,
         equations: Vec<Polynomial>,
@@ -39,7 +46,9 @@ impl MyApplicationHandler {
         let def_position = PhysicalPosition::<f32>::default();
         MyApplicationHandler {
             window,
+            #[cfg(not(target_arch = "wasm32"))]
             context,
+            #[cfg(not(target_arch = "wasm32"))]
             surface,
             canvas,
             equations,
@@ -145,7 +154,9 @@ impl ApplicationHandler for MyApplicationHandler {
             }
             WindowEvent::RedrawRequested => {
                 render(
+                    #[cfg(not(target_arch = "wasm32"))]
                     &self.context,
+                    #[cfg(not(target_arch = "wasm32"))]
                     &self.surface,
                     &self.window,
                     &mut self.canvas,
@@ -189,20 +200,21 @@ fn render_canvas(
 }
 
 fn render(
-    context: &PossiblyCurrentContext,
-    surface: &Surface<WindowSurface>,
+    #[cfg(not(target_arch = "wasm32"))] context: &PossiblyCurrentContext,
+    #[cfg(not(target_arch = "wasm32"))] surface: &Surface<WindowSurface>,
     window: &Window,
     canvas: &mut Canvas<OpenGl>,
     scale: f32,
     offset: PhysicalPosition<f32>,
     equations: &Vec<Polynomial>,
 ) {
-    render_canvas(window, canvas, scale, offset, equations);
+    render_canvas(window, canvas, scale, offset, equations); // this part doesn't change
 
     // Tell renderer to execute all drawing commands
     canvas.flush();
 
     // Display what we've just rendered
+    #[cfg(not(target_arch = "wasm32"))]
     surface
         .swap_buffers(context)
         .expect("Could not swap buffers");

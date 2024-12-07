@@ -24,3 +24,15 @@ cargo run
 - use bezier curves
 - highlight points hovered
 - don't always graph full x domain if it's off-screen in the y
+
+
+------------
+
+wasm
+
+cargo build --target=wasm32-unknown-unknown
+wasm-bindgen ./target/wasm32-unknown-unknown/debug/graph.wasm --out-dir wasm/generated --target web
+
+
+currently, the compilation and wasm generation works but the site is empty
+maybe something with the cargo cli args?

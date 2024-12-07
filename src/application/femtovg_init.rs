@@ -2,23 +2,58 @@ use std::num::NonZeroU32;
 
 use femtovg::renderer::OpenGl;
 use femtovg::Canvas;
-use glutin::context::PossiblyCurrentContext;
-use glutin::surface::Surface;
+// use glutin::context::PossiblyCurrentContext;
+// use glutin::surface::Surface;
+#[cfg(not(target_arch = "wasm32"))]
 use glutin::{
     config::ConfigTemplateBuilder,
-    context::ContextAttributesBuilder,
+    context::{ContextAttributesBuilder, PossiblyCurrentContext},
     display::GetGlDisplay,
     prelude::*,
-    surface::{SurfaceAttributesBuilder, WindowSurface},
+    surface::{Surface, SurfaceAttributesBuilder, WindowSurface},
 };
+#[cfg(not(target_arch = "wasm32"))]
 use glutin_winit::DisplayBuilder;
 #[allow(deprecated)]
+// #[cfg(not(target_arch = "wasm32"))]
 use raw_window_handle::HasRawWindowHandle;
 use winit::event_loop::EventLoop;
 use winit::window::WindowAttributes;
 use winit::{dpi::PhysicalSize, window::Window};
 
+use crate::grapher::equation::Polynomial;
+
+use super::handler::MyApplicationHandler;
+
 pub fn init_canvas<T>(
+    event_loop: &EventLoop<T>,
+    equations: Vec<Polynomial>,
+) -> MyApplicationHandler {
+    #[cfg(not(target_arch = "wasm32"))]
+    let (current_context, canvas, window, surface) = init_native(event_loop);
+
+    #[cfg(target_arch = "wasm32")]
+    let (canvas, window) = init_wasm(event_loop);
+
+    let default_scale = 50.;
+
+    window.focus_window();
+    let app = MyApplicationHandler::new(
+        window,
+        #[cfg(not(target_arch = "wasm32"))]
+        current_context,
+        #[cfg(not(target_arch = "wasm32"))]
+        surface,
+        canvas,
+        default_scale,
+        equations,
+    );
+
+    app
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+fn init_native<T>(
     event_loop: &EventLoop<T>,
 ) -> (
     PossiblyCurrentContext,
@@ -84,4 +119,34 @@ pub fn init_canvas<T>(
     canvas.set_size(1000, 600, window.scale_factor() as f32);
 
     (current_context, canvas, window, surface)
+}
+
+#[cfg(target_arch = "wasm32")]
+fn init_wasm<T>(event_loop: &EventLoop<T>) -> (Canvas<OpenGl>, Window) {
+    use wasm_bindgen::JsCast;
+
+    let canvas = web_sys::window()
+        .unwrap()
+        .document()
+        .unwrap()
+        .get_element_by_id("canvas")
+        .unwrap()
+        .dyn_into::<web_sys::HtmlCanvasElement>()
+        .unwrap();
+
+    use winit::platform::web::WindowAttributesExtWebSys;
+
+    let renderer = OpenGl::new_from_html_canvas(&canvas).expect("Cannot create renderer");
+
+    let window_attrs = Window::default_attributes().with_canvas(Some(canvas));
+    let window = event_loop.create_window(window_attrs).unwrap();
+
+    // let window = WindowBuilder::new()
+    //     .with_canvas(Some(canvas))
+    //     .build(&event_loop)
+    //     .unwrap();
+
+    let canvas = Canvas::new(renderer).expect("Cannot create canvas");
+
+    (canvas, window)
 }

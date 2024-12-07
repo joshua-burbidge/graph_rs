@@ -62,12 +62,14 @@ fn main() {
 
     let event_loop = EventLoop::new().expect("failed to create event loop");
 
-    let (context, canvas, window, surface) = femtovg_init::init_canvas(&event_loop);
-    let default_scale = 50.;
+    // let (context, canvas, window, surface) = femtovg_init::init_canvas(&event_loop, equations);
+    let mut app = femtovg_init::init_canvas(&event_loop, equations);
 
-    window.focus_window();
-    let mut app =
-        MyApplicationHandler::new(window, context, surface, canvas, default_scale, equations);
+    // let default_scale = 50.;
+
+    // window.focus_window();
+    // let mut app =
+    //     MyApplicationHandler::new(window, context, surface, canvas, default_scale, equations);
 
     event_loop.run_app(&mut app).expect("run failed");
 }
