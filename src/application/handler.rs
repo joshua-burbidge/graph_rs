@@ -154,8 +154,8 @@ impl ApplicationHandler for MyApplicationHandler {
                     &self.equations,
                 );
             }
-            _ => println!("{:?}", event),
-            // _ => {}
+            // _ => println!("{:?}", event),
+            _ => {}
         }
     }
 
