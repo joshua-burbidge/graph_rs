@@ -14,6 +14,11 @@ cargo run
 ```
 - exponents must be integers
 
+Can be compiled to Web Assembly and accessed in a browser at localhost:8000.
+```
+./serve.sh
+```
+
 ![graph_rs_2](https://github.com/user-attachments/assets/7859fb34-b5bb-42c8-8ea6-66cfb95e900d)
 
 
@@ -24,4 +29,4 @@ cargo run
 - use bezier curves
 - highlight points hovered
 - don't always graph full x domain if it's off-screen in the y
-
+- integrate egui
