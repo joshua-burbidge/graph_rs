@@ -79,7 +79,7 @@ jobs:
           terraform init
           terraform fmt -check
           terraform plan -input=false -out=tfplan \
-            -var "ecr_repository_name=$REPOSITORY_NAME"
+            -var "ecr_repository_name=$REPOSITORY_NAME" \
             -var "git_commit_sha=${{github.sha}}"
           terraform apply -auto-approve -input=false tfplan
         working-directory: ./terraform/main
