@@ -1,5 +1,5 @@
 resource "aws_ecr_repository" "graph_rs_repository" {
-  name                 = "graph-rs-repository"
+  name                 = var.ecr_repository_name
   image_tag_mutability = "IMMUTABLE"
   force_delete         = true
 }
