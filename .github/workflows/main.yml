@@ -1,0 +1,34 @@
+name: Deploy
+on:
+  push:
+    branches: [ "deploy"]
+  pull_request:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy
+    concurrency: deploy-job
+    runs-on: ubuntu-latest
+    environment: production
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4 # Requires the role to have a trust policy for GHA
+        with:
+          role-to-assume: arn:aws:iam::575737149124:role/graph-rs-deploy
+          aws-region: us-east-1
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.2
+      - name: Terraform Plan
+        run: |
+          terraform init
+          terraform fmt -check
+          terraform plan -input=false -out=tfplan
+        working-directory: ./terraform/ecr
