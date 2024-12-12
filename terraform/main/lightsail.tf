@@ -11,6 +11,10 @@ resource "aws_lightsail_container_service" "container_service" {
   }
 }
 
+output "lightsail_role" {
+  value = aws_lightsail_container_service.container_service.private_registry_access[0].ecr_image_puller_role[0].principal_arn
+}
+
 resource "aws_lightsail_container_service_deployment_version" "deployment" {
   service_name = aws_lightsail_container_service.container_service.name
 
