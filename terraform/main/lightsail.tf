@@ -43,8 +43,12 @@ data "aws_iam_policy_document" "aws_ecr_repository_policy" {
       identifiers = [
         "arn:aws:iam::575737149124:user/admin",
         "arn:aws:iam::575737149124:role/graph-rs-deploy",
-        aws_lightsail_container_service.container_service.private_registry_access[0].ecr_image_puller_role[0].principal_arn
+        # aws_lightsail_container_service.container_service.private_registry_access[0].ecr_image_puller_role[0].principal_arn
       ]
+    }
+    principals {
+      type        = "Service"
+      identifiers = ["lightsail.amazonaws.com"]
     }
   }
 }
