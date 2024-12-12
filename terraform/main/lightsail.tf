@@ -51,5 +51,5 @@ data "aws_iam_policy_document" "aws_ecr_repository_policy" {
 
 resource "aws_ecr_repository_policy" "policy" {
   repository = data.aws_ecr_repository.graph_rs_repo.name
-  policy     = data.aws_iam_policy_document.aws_ecr_repository_policy
+  policy     = data.aws_iam_policy_document.aws_ecr_repository_policy.json
 }
