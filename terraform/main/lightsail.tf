@@ -10,6 +10,10 @@ resource "aws_lightsail_container_service" "container_service" {
     }
   }
 }
+import {
+  to = aws_lightsail_container_service.container_service
+  id = "graph-rs-container-service"
+}
 
 resource "aws_lightsail_container_service_deployment_version" "deployment" {
   service_name = aws_lightsail_container_service.container_service.name
