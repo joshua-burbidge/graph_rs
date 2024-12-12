@@ -50,11 +50,14 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
+          PREVIOUS_TAG: ${{ github.event.before }}
         run: |
           echo $ECR_REGISTRY
           echo $REPOSITORY_NAME
           echo $IMAGE_TAG
-          docker build . -f Dockerfile -t "$ECR_REGISTRY/$REPOSITORY_NAME:$IMAGE_TAG"
+          echo $PREVIOUS_TAG
+          docker pull "$ECR_REGISTRY/$REPOSITORY_NAME:$PREVIOUS_TAG"
+          docker build . -f Dockerfile --cache-from "$ECR_REGISTRY/$REPOSITORY_NAME:$PREVIOUS_TAG" -t "$ECR_REGISTRY/$REPOSITORY_NAME:$IMAGE_TAG"
           docker push "$ECR_REGISTRY/$REPOSITORY_NAME:$IMAGE_TAG"
           echo "IMAGE $IMAGE_TAG is pushed to $ECR_REGISTRY/$REPOSITORY_NAME"
   deploy:
