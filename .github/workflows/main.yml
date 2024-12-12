@@ -52,8 +52,6 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
           PREVIOUS_TAG: ${{ github.event.before }}
         run: |
-          echo $ECR_REGISTRY
-          echo $REPOSITORY_NAME
           echo $IMAGE_TAG
           echo $PREVIOUS_TAG
           docker pull "$ECR_REGISTRY/$REPOSITORY_NAME:$PREVIOUS_TAG"
