@@ -43,6 +43,7 @@ jobs:
         with:
           registries: 575737149124
           mask-password: "true"
+      # docker pull previous commit
       - name: Build, tag, and push image to Amazon ECR
         id: build-publish
         shell: bash

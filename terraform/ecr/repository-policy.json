@@ -6,7 +6,6 @@
       "Effect": "Allow",
       "Principal": {
         "AWS": [
-          "arn:aws:iam::575737149124:root",
           "arn:aws:iam::575737149124:user/admin",
           "arn:aws:iam::575737149124:role/graph-rs-deploy"
         ]

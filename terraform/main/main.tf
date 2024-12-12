@@ -7,7 +7,7 @@ terraform {
   }
   backend "s3" {
     bucket = "575737149124-terraform-backend"
-    key    = "forum-server/tfstate"
+    key    = "graph-rs-main/tfstate"
     region = "us-east-1"
   }
 
