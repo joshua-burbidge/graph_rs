@@ -22,7 +22,7 @@ jobs:
         shell: bash
     steps:
       - uses: actions/checkout@v4
-      - uses: aws-actions/configure-aws-credentials@v4 # Requires the role to have a trust policy for GHA
+      - uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::575737149124:role/graph-rs-deploy
           aws-region: us-east-1
@@ -54,7 +54,7 @@ jobs:
         run: |
           echo $IMAGE_TAG
           echo $PREVIOUS_TAG
-          docker pull "$ECR_REGISTRY/$REPOSITORY_NAME:$PREVIOUS_TAG"
+          docker pull "$ECR_REGISTRY/$REPOSITORY_NAME:$PREVIOUS_TAG" || echo "could not pull image"
           docker build . -f Dockerfile --cache-from "$ECR_REGISTRY/$REPOSITORY_NAME:$PREVIOUS_TAG" -t "$ECR_REGISTRY/$REPOSITORY_NAME:$IMAGE_TAG"
           docker push "$ECR_REGISTRY/$REPOSITORY_NAME:$IMAGE_TAG"
           echo "IMAGE $IMAGE_TAG is pushed to $ECR_REGISTRY/$REPOSITORY_NAME"
