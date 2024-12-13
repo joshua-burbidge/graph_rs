@@ -14,6 +14,7 @@ resource "aws_lightsail_container_service" "container_service" {
 output "lightsail_role" {
   value = aws_lightsail_container_service.container_service.private_registry_access[0].ecr_image_puller_role[0].principal_arn
 }
+# this works
 
 # resource "aws_lightsail_container_service_deployment_version" "deployment" {
 #   service_name = aws_lightsail_container_service.container_service.name
@@ -47,13 +48,13 @@ data "aws_iam_policy_document" "aws_ecr_repository_policy" {
       identifiers = [
         "arn:aws:iam::575737149124:user/admin",
         "arn:aws:iam::575737149124:role/graph-rs-deploy",
-        # aws_lightsail_container_service.container_service.private_registry_access[0].ecr_image_puller_role[0].principal_arn
+        aws_lightsail_container_service.container_service.private_registry_access[0].ecr_image_puller_role[0].principal_arn
       ]
     }
   }
 }
 
 resource "aws_ecr_repository_policy" "policy" {
-  repository = data.aws_ecr_repository.graph_rs_repo.name
+  repository = aws_ecr_repository.graph_rs_repo.name
   policy     = data.aws_iam_policy_document.aws_ecr_repository_policy.json
 }
