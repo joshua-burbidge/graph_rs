@@ -214,7 +214,8 @@ fn render(
     render_canvas(window, canvas, scale, offset, equations); // this part doesn't change
 
     // Tell renderer to execute all drawing commands
-    canvas.flush();
+    canvas.flush_to_surface(&());
+    // wgpu would use a texture here
 
     // Display what we've just rendered
     #[cfg(not(target_arch = "wasm32"))]
