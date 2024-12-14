@@ -25,8 +25,8 @@ Can be compiled to Web Assembly and accessed in a browser at localhost:8000.
 -----------------------
 
 #### TODO
-- reverse order - create equation from graph
-- use bezier curves
+- graph cubics with cubic bezier curve
 - highlight points hovered
 - don't always graph full x domain if it's off-screen in the y
 - integrate egui
+- docker image caching

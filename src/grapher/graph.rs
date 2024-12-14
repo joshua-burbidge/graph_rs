@@ -107,7 +107,6 @@ impl<'a> Graph<'a> {
 
         let num_x_ticks_left = (zero_x / self.scale).ceil() as i32; // without ceil the edge would be empty until more than half is showing
         let num_x_ticks_right = ((self.size.width as f32 - zero_x) / self.scale).ceil() as i32;
-        // when it would round down we need the +1, when it would round up we don't
 
         let min_x = num_x_ticks_left * -1;
         let max_x = num_x_ticks_right;
