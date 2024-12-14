@@ -1,0 +1,74 @@
+name: Deploy
+on:
+  push:
+    branches: [ "deploy"]
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  REPOSITORY_NAME: graph-rs-repository
+
+jobs:
+  upload:
+    name: upload-image
+    concurrency: upload-image
+    runs-on: ubuntu-latest
+    environment: production
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::575737149124:role/graph-rs-deploy
+          aws-region: us-east-1
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registries: 575737149124
+          mask-password: "true"
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-publish
+        shell: bash
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+          PREVIOUS_TAG: ${{ github.event.before }}
+        run: |
+          echo $IMAGE_TAG
+          echo $PREVIOUS_TAG
+          docker pull "$ECR_REGISTRY/$REPOSITORY_NAME:$PREVIOUS_TAG" || echo "could not pull image"
+          docker build . -f Dockerfile --cache-from "$ECR_REGISTRY/$REPOSITORY_NAME:$PREVIOUS_TAG" -t "$ECR_REGISTRY/$REPOSITORY_NAME:$IMAGE_TAG"
+          docker push "$ECR_REGISTRY/$REPOSITORY_NAME:$IMAGE_TAG"
+          echo "IMAGE $IMAGE_TAG is pushed to $ECR_REGISTRY/$REPOSITORY_NAME"
+  deploy:
+    name: deploy
+    concurrency: deploy
+    runs-on: ubuntu-latest
+    needs: upload
+    environment: production
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::575737149124:role/graph-rs-deploy
+          aws-region: us-east-1
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.2
+      - name: Terraform
+        run: |
+          terraform init
+          terraform fmt -check
+          terraform plan -input=false -out=tfplan \
+            -var "ecr_repository_name=$REPOSITORY_NAME" \
+            -var "git_commit_sha=${{github.sha}}"
+          terraform apply -auto-approve -input=false tfplan
+        working-directory: ./terraform
