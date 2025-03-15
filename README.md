@@ -30,3 +30,4 @@ Can be compiled to Web Assembly and accessed in a browser at localhost:8000.
 - don't always graph full x domain if it's off-screen in the y
 - integrate egui
 - docker image caching
+
