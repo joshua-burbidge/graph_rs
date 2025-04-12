@@ -35,7 +35,5 @@ jobs:
           -var "ecr_repository_name=$REPOSITORY_NAME" 
       working-directory: ./terraform
     - name: Terraform Apply
-      run: terraform apply -auto-approve -input=false -destroy \
-        -var "git_commit_sha=${{github.sha}}" \
-        -var "ecr_repository_name=$REPOSITORY_NAME"
+      run: terraform apply -auto-approve -input=false -destroy -var "git_commit_sha=${{github.sha}}" -var "ecr_repository_name=$REPOSITORY_NAME"
       working-directory: ./terraform
